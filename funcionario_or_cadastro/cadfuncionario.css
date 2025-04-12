@@ -1,5 +1,6 @@
+/* Estilos Gerais */
 * {
-    font-family: 'Georgia', serif; /* Fonte elegante */
+    font-family: 'Georgia', serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -11,7 +12,7 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #e0e0e0, #f8f8f8); /* Gradiente sutil */
+    background: linear-gradient(135deg, #e0e0e0, #f8f8f8);
 }
 
 .container {
@@ -20,14 +21,17 @@ body {
     max-width: 1200px;
     justify-content: space-around;
     align-items: center;
+    flex-direction: column;
 }
 
+/* Estilos do Cabeçalho */
 .header-content {
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 header h1 {
-    color: #333; /* Cinza escuro elegante */
+    color: #333;
     font-size: 3rem;
     font-weight: 600;
     line-height: 3.5rem;
@@ -35,7 +39,7 @@ header h1 {
 }
 
 header span {
-    color: #daa520; /* Dourado sutil */
+    color: #daa520;
 }
 
 .img-logo {
@@ -46,7 +50,8 @@ header span {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-main.login-form {
+/* Estilos do Formulário */
+.cadastro-form {
     width: 380px;
     padding: 3rem;
     background-color: white;
@@ -54,67 +59,53 @@ main.login-form {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-.welcome-text {
-    color: #555;
-    font-size: 1.2rem;
-    font-weight: 500;
-    line-height: 1.8;
-    margin-bottom: 10px;
-}
-
-.login-title {
+.form-title {
     color: #333;
     font-size: 2.2rem;
     font-weight: 600;
     line-height: normal;
-    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 1rem;
+}
+
+legend {
+    font-weight: 500;
+    padding: 0 10px;
 }
 
 label {
+    display: block;
     font-size: 1rem;
     font-weight: 500;
     line-height: 1.8;
+    margin-top: 10px;
 }
 
-#contato, #senha {
+input, select {
     padding: 12px;
     width: 100%;
     height: 48px;
-    margin-top: 10px;
+    margin-top: 5px;
     font-size: 1rem;
     font-weight: 400;
     border: 1px solid #ddd;
     border-radius: 8px;
 }
 
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
+input::placeholder{
+    color: #aaa;
 }
 
-.form-options label {
-    font-size: 1rem;
-}
-
-.form-options a {
-    text-decoration: none;
-    color: #5711da;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-button img {
-    margin-right: 10px;
-    width: 20px;
-    height: 20px;
-}
-
-main button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Estilos do Botão */
+.button {
+    display: block;
     width: 100%;
     height: 50px;
     margin-top: 20px;
@@ -124,45 +115,18 @@ main button {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-.button {
-    color: white;
     background-color: #5711da;
+    color: white;
 }
 
 .button:hover {
     background-color: #450eb0;
 }
 
-
-.p2 {
-    color: #555;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.8;
-    margin-top: 25px;
-    text-align: center;
-}
-
-.p2 a {
-    font-size: 1rem;
-    text-decoration: none;
-    color: #5711da;
-    font-weight: 500;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
+/* Responsividade */
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .img-logo {
-        width: 250px;
+    .cadastro-form {
+        width: 90%;
+        padding: 2rem;
     }
 }

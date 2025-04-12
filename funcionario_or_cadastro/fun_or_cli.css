@@ -1,5 +1,6 @@
+/* Estilos Gerais */
 * {
-    font-family: 'Georgia', serif; /* Fonte elegante */
+    font-family: 'Georgia', serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -11,7 +12,7 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #e0e0e0, #f8f8f8); /* Gradiente sutil */
+    background: linear-gradient(135deg, #e0e0e0, #f8f8f8);
 }
 
 .container {
@@ -27,7 +28,7 @@ body {
 }
 
 header h1 {
-    color: #333; /* Cinza escuro elegante */
+    color: #333;
     font-size: 3rem;
     font-weight: 600;
     line-height: 3.5rem;
@@ -35,7 +36,7 @@ header h1 {
 }
 
 header span {
-    color: #daa520; /* Dourado sutil */
+    color: #daa520;
 }
 
 .img-logo {
@@ -76,7 +77,7 @@ label {
     line-height: 1.8;
 }
 
-#contato, #senha {
+select {
     padding: 12px;
     width: 100%;
     height: 48px;
@@ -85,30 +86,6 @@ label {
     font-weight: 400;
     border: 1px solid #ddd;
     border-radius: 8px;
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-.form-options label {
-    font-size: 1rem;
-}
-
-.form-options a {
-    text-decoration: none;
-    color: #5711da;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-button img {
-    margin-right: 10px;
-    width: 20px;
-    height: 20px;
 }
 
 main button {
@@ -134,7 +111,6 @@ main button {
 .button:hover {
     background-color: #450eb0;
 }
-
 
 .p2 {
     color: #555;
