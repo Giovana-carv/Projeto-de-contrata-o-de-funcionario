@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="login-title">Cadastro</h2>
+        <form id="cadastro-form">
+            <label for="tipo">Tipo de Cadastro:</label>
+            <select id="tipo" name="tipo" required onchange="toggleFields()">
+                <option value="cliente">Cliente</option>
+                <option value="funcionario">Funcionário</option>
+            </select>
+
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required>
+
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco" required>
+
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" name="estado" required>
+
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade" required>
+
+            <label for="contato">Número ou E-mail:</label>
+            <input type="text" id="contato" name="contato" required>
+
+            <label for="foto">Foto de Perfil:</label>
+            <input type="file" id="foto" name="foto" accept="image/*" onchange="previewImage()">
+            <img id="profile-preview" src="" alt="Prévia da foto" style="display: none;">
+
+            <div id="ocupacao-container" style="display: none;">
+                <label for="ocupacao">Tipo de Ocupação:</label>
+                <input type="text" id="ocupacao" name="ocupacao">
+            </div>
+
+            <button type="submit" class="button">Cadastrar</button>
+        </form>
+    </div>
+
+    <script src="cadastro_script.js"></script>
+</body>
+</html>
