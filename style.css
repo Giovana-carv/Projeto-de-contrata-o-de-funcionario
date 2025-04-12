@@ -1,0 +1,172 @@
+* {
+    font-family: 'Georgia', serif; /* Fonte elegante */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #e0e0e0, #f8f8f8); /* Gradiente sutil */
+}
+
+.container {
+    display: flex;
+    width: 90%;
+    max-width: 1200px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.header-content {
+    text-align: center;
+}
+
+header h1 {
+    color: #333; /* Cinza escuro elegante */
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 3.5rem;
+    margin-top: 20px;
+}
+
+header span {
+    color: #daa520; /* Dourado sutil */
+}
+
+.img-logo {
+    width: 300px;
+    height: auto;
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+main.login-form {
+    width: 380px;
+    padding: 3rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+    color: #555;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.8;
+    margin-bottom: 10px;
+}
+
+.login-title {
+    color: #333;
+    font-size: 2.2rem;
+    font-weight: 600;
+    line-height: normal;
+    margin-top: 10px;
+}
+
+label {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.8;
+}
+
+#contato, #senha {
+    padding: 12px;
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.form-options label {
+    font-size: 1rem;
+}
+
+.form-options a {
+    text-decoration: none;
+    color: #5711da;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+button img {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+main button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    margin-top: 20px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button {
+    color: white;
+    background-color: #5711da;
+}
+
+.button:hover {
+    background-color: #450eb0;
+}
+
+.button2 {
+    background-color: #333;
+    color: white;
+}
+
+.p2 {
+    color: #555;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.8;
+    margin-top: 25px;
+    text-align: center;
+}
+
+.p2 a {
+    font-size: 1rem;
+    text-decoration: none;
+    color: #5711da;
+    font-weight: 500;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .img-logo {
+        width: 250px;
+    }
+}

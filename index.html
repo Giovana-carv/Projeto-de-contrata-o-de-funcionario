@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>Login</title>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header-content">
+            <img src="imagens/imagem_1.jpeg" alt="Mulher trabalhando no computador" class="img-logo" />
+            <div class="header-text">
+                <h1><span>Contrate um</span> <br>Profissional</h1>
+            </div>
+        </header>
+        <main class="login-form">
+            <p class="welcome-text">Bem Vindo!</p>
+            <h2 class="login-title">Faça login na sua Conta</h2><br>
+
+            <form id="login-form">
+                <label for="contato">Número ou E-mail:</label>
+                <input type="text" id="contato" name="contato" required>
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+
+                <div class="form-options">
+                    <label><input type="checkbox" id="lembre" /> Lembre de Mim</label>
+                    <a href="" id="forgot">Esqueci minha senha</a>
+                </div>
+
+                <button type="submit" class="button">Entrar</button><br>
+                <button type="button" class="button2"><img src="google.jpeg"> Entrar com o Google</button><br>
+                <button type="button" class="button2"><img src="github.png"> Entrar com o GitHub</button> <br>
+
+                <p class="p2">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const contato = document.getElementById("contato").value;
+            const senha = document.getElementById("senha").value;
+
+            //simulando um login básico. Será substituído pelo backend C#)
+            if (contato === "teste@email.com" && senha === "1234") {
+                alert("Login bem sucedido!");
+                window.location.href = "pagina1.html"; //redireciona para outra pagina apos login
+            } else {
+                alert("Credenciais invalidas. Tente novamente.");
+            }
+        });
+    </script>
+</body>
+</html>
