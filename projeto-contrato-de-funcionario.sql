@@ -44,3 +44,11 @@ CREATE TABLE funcionario (
     FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK),
     FOREIGN KEY (IDgerente_FK) REFERENCES gerente(IDgerente_PK)
 );
+
+CREATE TABLE avaliacao(
+    IDavaliacao INT PRIMARY KEY AUTO_INCREMENT,
+    nota INT,
+    IDfuncionario_FK INT,
+    FOREIGN KEY (IDfuncionario_FK) REFERENCES funcionario(IDfuncionario_PK)
+
+)
