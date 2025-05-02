@@ -1,14 +1,20 @@
 <?php
-$host = "localhost";
-$usuario = "root";
-$senha = "";
-$banco_de_dados = "project_servico";
+$servername = "localhost"; // ou o endereço do seu servidor MySQL
+$username = "root"; // seu nome de usuário do banco de dados
+$password = ""; // sua senha do banco de dados
+$database = "project_servico"; // o nome do seu banco de dados
 
-// Criar uma conexão
-$conn = new mysqli($host, $usuario, $senha, $banco_de_dados);
+// Cria a conexão
+$conn = new mysqli($servername, $username, $password, $database);
 
-// Verificar se a conexão foi estabelecida
+// Verifica a conexão
 if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+  die("Falha na conexão: " . $conn->connect_error);
 }
+echo "Conexão estabelecida com sucesso!";
+
+// Aqui você pode realizar operações no banco de dados
+
+// Fecha a conexão quando terminar
+$conn->close();
 ?>

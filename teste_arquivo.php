@@ -5,7 +5,7 @@
 <body>
 
 <h1>Cadastro</h1>
-<form method="post" action="cad.php">
+<form method="post" action="">
 <label>Nome: </label>
 <input name="nome" size = "20" type="text">
 <br>
