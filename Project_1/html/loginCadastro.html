@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Login e Cadastro </title>
+    <link rel="stylesheet" href="../css/loginCadastro.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+</head>
+<body>
+      <div class="container" id="container">
+    <!-- Cadastro -->
+    <div class="form-container sign-up-container">
+    <form action="../php/cadastro.php" method="POST" enctype="multipart/form-data">
+    <h2>Crie uma Conta:</h2>
+
+    <span>Tipo de usuário</span>
+    <select name="tipo" id="tipo" onchange="mostrarCampos()" required>
+        <option value="cliente">Cliente</option>
+        <option value="funcionario">Funcionário</option>
+    </select>
+    <div id="camposFuncionario" style="display:none;">
+        <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+        <label for="comentario"> Deixe um comentario: </label>
+        <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
+    </div>
+
+    <input type="text" name="nome" placeholder="Nome" required />
+    <input type="email" name="email" placeholder="E-mail" required />
+    <input type="password" name="senha" placeholder="Senha" required />
+    <input type="text" name="endereco" placeholder="Endereço" required />
+
+    <label>Foto de Perfil</label>
+    <input type="file" name="foto_perfil" accept="image/*" required />
+
+    <div id="certificado-area" style="display: none;">
+        <label>Certificado (somente para funcionários)</label>
+        <input type="file" name="certificado" accept="image/*" />
+    </div>
+
+    <button type="submit">Cadastrar-se</button>
+</form>
+    </div>
+    <!-- Fim do cadastro-->
+
+<!-- Login -->
+    <div class="form-container sign-in-container">
+      <form action="../php/login.php" method="post">
+        <h1>Entrar</h1>
+          <input type="text" name="nome" placeholder="Nome" required>
+          <input type="password" name="senha" placeholder="Senha" required>
+        <a href="#">Esqueceu sua senha?</a>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <!-- Painel lateral -->
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Bem-vindo de volta!</h1>
+          <p>Para se manter conectado, entre com suas credenciais</p>
+          <button class="ghost" id="signIn">Entrar</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Seja Bem-vindo!</h1>
+          <p>Insira seus dados e comece sua jornada conosco</p>
+          <button class="ghost" id="signUp">Cadastrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+    const signUpButton = document.getElementById('signUp');
+    const signInButton = document.getElementById('signIn');
+    const container = document.getElementById('container');
+
+    signUpButton.addEventListener('click', () => {
+      container.classList.add("right-panel-active");
+    });
+
+    signInButton.addEventListener('click', () => {
+      container.classList.remove("right-panel-active");
+    });
+    // Exibe campo de certificado apenas para funcionários
+    const tipoSelect = document.querySelector('select[name="tipo"]');
+    const certArea = document.getElementById('certificado-area');
+
+    tipoSelect.addEventListener('change', () => {
+        certArea.style.display = tipoSelect.value === 'funcionario' ? 'block' : 'none';
+    });
+
+
+    function mostrarCampos() {
+    let tipo = document.getElementById("tipo").value;
+    document.getElementById("camposFuncionario").style.display = tipo === 'funcionario' ? 'block' : 'none';
+}
+    document.getElementById('fotoInput').addEventListener('change', function(event)
+{
+    const preview = document.getElementById('preview');
+    const file = event.target.files[0];
+
+    if(file){
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    } else{
+        preview.style.display = 'none';
+    }
+})
+</script>
+</body>
+</html>
