@@ -6,7 +6,7 @@ CREATE TABLE pessoa (
     senha_pessoa VARCHAR(100),
     CPF VARCHAR(11) UNIQUE,
     nome VARCHAR(20),
-    cnpj VARCHAR(20) UNIQUE,
+    cnpj VARCHAR(20) UNIQUE
     
 );
 
