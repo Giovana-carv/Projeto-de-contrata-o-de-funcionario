@@ -1,16 +1,12 @@
 USE project_servico;
 
-CREATE TABLE cnpj (
-    IDcnpj_PK INT PRIMARY KEY AUTO_INCREMENT,
-    nome_cnpj VARCHAR(100)
-);
 
 CREATE TABLE pessoa (
     IDpessoa_PK INT PRIMARY KEY AUTO_INCREMENT,
     senha_pessoa VARCHAR(100),
     CPF VARCHAR(11) UNIQUE,
     nome VARCHAR(20),
-    IDcnpj_FK INT,
+    cnpj VARCHAR(20),
     FOREIGN KEY (IDcnpj_FK) REFERENCES cnpj(IDcnpj_PK)
 );
 
