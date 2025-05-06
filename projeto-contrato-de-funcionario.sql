@@ -6,8 +6,8 @@ CREATE TABLE pessoa (
     senha_pessoa VARCHAR(100),
     CPF VARCHAR(11) UNIQUE,
     nome VARCHAR(20),
-    cnpj VARCHAR(20),
-    FOREIGN KEY (IDcnpj_FK) REFERENCES cnpj(IDcnpj_PK)
+    cnpj VARCHAR(20) UNIQUE,
+    
 );
 
 CREATE TABLE endereco (
@@ -18,8 +18,7 @@ CREATE TABLE endereco (
 CREATE TABLE gerente (
     IDgerente_PK INT PRIMARY KEY AUTO_INCREMENT,
     senha_gerente VARCHAR(100),
-    nome_gerente VARCHAR(50),
-    senha VARCHAR(100)
+    nome_gerente VARCHAR(50)
 );
 
 CREATE TABLE cliente (
@@ -28,10 +27,8 @@ CREATE TABLE cliente (
     IDendereco_FK INT,
     senha_cliente VARCHAR(100),
     IDpessoa_FK INT,
-    IDgerente_FK INT,
     FOREIGN KEY (IDendereco_FK) REFERENCES endereco(IDendereco_PK),
-    FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK),
-    FOREIGN KEY (IDgerente_FK) REFERENCES gerente(IDgerente_PK)
+    FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK)
 );
 
 CREATE TABLE funcionario (
@@ -40,9 +37,8 @@ CREATE TABLE funcionario (
     nome_funcionario VARCHAR(50),
     categoria VARCHAR(20),
     IDpessoa_FK INT,
-    IDgerente_FK INT,
-    FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK),
-    FOREIGN KEY (IDgerente_FK) REFERENCES gerente(IDgerente_PK)
+    FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK)
+  
 );
 
 CREATE TABLE avaliacao(
