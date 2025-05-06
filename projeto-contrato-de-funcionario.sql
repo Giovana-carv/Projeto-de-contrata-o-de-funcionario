@@ -12,7 +12,8 @@ CREATE TABLE pessoa (
 
 CREATE TABLE endereco (
     IDendereco_PK INT PRIMARY KEY AUTO_INCREMENT,
-    nome_endereco VARCHAR(100)
+    nome_endereco_pessoa VARCHAR(100),
+    nome_endereco_cnpj VARCHAR(100)
 );
 
 CREATE TABLE gerente (
