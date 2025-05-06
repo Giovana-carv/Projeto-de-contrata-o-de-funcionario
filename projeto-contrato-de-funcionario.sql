@@ -37,7 +37,7 @@ CREATE TABLE funcionario (
     senha_funcionario VARCHAR(100),
     nome_funcionario VARCHAR(50),
     categoria VARCHAR(20),
-    IDpessoa_FK INT,
+    IDpessoa_FK INT, // Tirar posteriormente
     FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK)
   
 );

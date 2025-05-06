@@ -2,22 +2,22 @@
 include("conexao.php");
 // Dados
 $nome = $_POST['nome'];
-$email = $_POST['email'];
+$email = $_POST['email']; //Pode ser alterado
 $senha = $_POST['senha'];
-$tipo = $_POST['tipo'];
+$tipo = $_POST['tipo']; //Pode ser alterado
 $ocupacao = $_POST['ocupacao'] ?? null;
-$comentario = $_POST['comentario'] ?? null;
-$endereco = $_POST['endereco'];
+$comentario = $_POST['comentario'] ?? null; // Pode ser alterado
+$endereco = $_POST['endereco']; //Não.
 
 // Uploads
-$foto_perfil = $_FILES['foto_perfil']['name'];
-$certificado = isset($_FILES['certificado']['name']) ? $_FILES['certificado']['name'] : null;
+$foto_perfil = $_FILES['foto_perfil']['name']; //Pode ser alterado
+$certificado = isset($_FILES['certificado']['name']) ? $_FILES['certificado']['name'] : null; //Pode ser alterado
 
 // Move arquivos
-$dir = "../uploads/";
-move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $dir . $foto_perfil);
+$dir = "../uploads/"; //Pode ser alterado
+move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $dir . $foto_perfil); //Pode ser alterado
 
-if ($tipo == "funcionario" && !empty($certificado)) {
+if ($tipo == "funcionario" && !empty($certificado)) { //Pode ser alterado
     move_uploaded_file($_FILES['certificado']['tmp_name'], $dir . $certificado);
 } else {
     $certificado = null;
