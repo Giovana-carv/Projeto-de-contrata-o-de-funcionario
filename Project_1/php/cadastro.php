@@ -18,7 +18,7 @@ $dir = "../uploads/"; //Pode ser alterado
 move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $dir . $foto_perfil); //Pode ser alterado
 
 if ($tipo == "funcionario" && !empty($certificado)) { //Pode ser alterado
-    move_uploaded_file($_FILES['certificado']['tmp_name'], $dir . $certificado);
+    move_uploadaed_file($_FILES['certificado']['tmp_name'], $dir . $certificado);
 } else {
     $certificado = null;
 }

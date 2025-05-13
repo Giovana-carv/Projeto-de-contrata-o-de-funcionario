@@ -4,9 +4,11 @@ USE project_servico;
 CREATE TABLE pessoa (
     IDpessoa_PK INT PRIMARY KEY AUTO_INCREMENT,
     senha_pessoa VARCHAR(100),
+    IDendereco_FK INT,
     CPF VARCHAR(11) UNIQUE,
     nome VARCHAR(20),
     cnpj VARCHAR(20) UNIQUE
+    FOREIGN KEY (IDendereco_FK) REFERENCES endereco(IDendereco_PK),
     
 );
 
@@ -18,6 +20,7 @@ CREATE TABLE endereco (
 
 CREATE TABLE gerente (
     IDgerente_PK INT PRIMARY KEY AUTO_INCREMENT,
+    IDcadger INT UNIQUE,
     senha_gerente VARCHAR(100),
     nome_gerente VARCHAR(50)
 );
@@ -25,19 +28,20 @@ CREATE TABLE gerente (
 CREATE TABLE cliente (
     IDcliente_PK INT PRIMARY KEY AUTO_INCREMENT,
     nome_cliente VARCHAR(50),
-    IDendereco_FK INT,
+    email_cliente VARCHAR(50),
+    IDcadcli INT UNIQUE,
     senha_cliente VARCHAR(100),
     IDpessoa_FK INT,
-    FOREIGN KEY (IDendereco_FK) REFERENCES endereco(IDendereco_PK),
     FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK)
 );
 
 CREATE TABLE funcionario (
     IDfuncionario_PK INT PRIMARY KEY AUTO_INCREMENT,
+    IDcadfun INT UNIQUE,
     senha_funcionario VARCHAR(100),
     nome_funcionario VARCHAR(50),
     categoria VARCHAR(20),
-    IDpessoa_FK INT, // Tirar posteriormente
+    IDpessoa_FK INT,
     FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK)
   
 );

@@ -41,7 +41,7 @@
 </html>
 
 <?php
-include("conect.php");
+include("conexao.php");
  if (isset($_POST['enviar'])):
 $nome = $_POST['nome'];
 $senha = $_POST['senha'];
