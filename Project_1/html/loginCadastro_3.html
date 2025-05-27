@@ -90,6 +90,26 @@
         .endereco-input.active {
             display: block;
         }
+
+        .login-options {
+            display: flex;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .login-options button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+
+        .login-options button.active {
+            background-color: #eee;
+        }
     </style>
 </head>
 <body>
@@ -97,28 +117,16 @@
         <div class="form-container sign-up-container">
             <h2>Crie uma Conta:</h2>
             <div class="signup-options" id="signupOptions">
-                <button id="mostrarCadastroCadastral">Cadastro Cadastral</button>
                 <button id="mostrarCadastroPessoal">Cadastro Pessoal</button>
-            </div>
-
-            <div id="cadastroCadastralForm" class="cadastro-form">
-                <h3>Informações Cadastrais</h3>
-                <form id="formCadastroCadastral" action="processa_cadastro_cadastral.php" method="POST">
-                    <input type="text" name="nome_cad" placeholder="Nome" required />
-                    <input type="email" name="email" placeholder="E-mail" required />
-                    <input type="password" name="senha_cad" placeholder="Senha" required />
-
-                    <button type="submit" id="proximoCadastroCadastral">Próximo</button>
-                    <button type="button" id="voltarCadastroCadastral">Voltar</button>
-                </form>
+                <button id="mostrarCadastroCadastral">Cadastro Cadastral</button>
             </div>
 
             <div id="cadastroPessoalForm" class="cadastro-form">
                 <h3>Informações Pessoais</h3>
-                <form id="formCadastroPessoal" action="processa_cadastro_pessoal.php" method="POST">
-                    <input type="text" name="nome" placeholder="Nome" required />
-                    <input type="password" name="senha" placeholder="Senha" required />
-                    <input type="text" name="cpf" placeholder="CPF" required />
+                <form id="formCadastroPessoal" action="..\php\cadastro_pessoal_1.php" method="POST">
+                    <input type="text" name="nome" placeholder="nome" required />
+                    <input type="password" name="senha_pessoa" placeholder="Senha" required />
+                    <input type="text" name="CPF" placeholder="CPF"/>
                     <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
 
                     <h4>Endereço</h4>
@@ -127,20 +135,39 @@
                         <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
                     </div>
                     <div class="endereco-input-container">
-                        <input type="text" id="enderecoPessoalInput" name="endereco_pessoal" placeholder="Endereço Pessoal" class="endereco-input active" />
-                        <input type="text" id="enderecoCNPJInput" name="endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
+                        <input type="text" id="enderecoPessoalInput" name="nome_endereco_pessoa" placeholder="Endereço Pessoal" class="endereco-input active" />
+                        <input type="text" id="enderecoCNPJInput" name="nome_endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
                     </div>
 
-                    <button type="submit" id="cadastrarPessoal">Cadastrar</button>
+                    <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
+                </form>
+            </div>
+
+            <div id="cadastroCadastralForm" class="cadastro-form">
+                <h3>Informações Cadastrais</h3>
+                <form id="formCadastroCadastral" action="processa_cadastro_cadastral.php" method="POST">
+                    <input type="text" name="nome_cad" placeholder="Nome" required />
+                    <input type="email" name="email" placeholder="E-mail" required />
+                    <input type="password" name="senha_cad" placeholder="Senha" required />
+                    <button type="submit" id="proximoCadastroCadastral">Próximo</button>
+                    <button type="button" id="voltarCadastroCadastral">Voltar</button>
                 </form>
             </div>
         </div>
         <div class="form-container sign-in-container">
             <form action="../php/login.php" method="post">
                 <h1>Entrar</h1>
-                <input type="text" name="nome" placeholder="Nome" required>
+                <input type="email" name="email" placeholder="E-mail" required>
                 <input type="password" name="senha" placeholder="Senha" required>
+                <div class="login-options">
+                    <button type="button" id="loginComCPF" class="active">CPF</button>
+                    <button type="button" id="loginComCNPJ">CNPJ</button>
+                </div>
+                <div id="loginInputs">
+                    <input type="text" name="cpf_login" placeholder="CPF" style="display: block;" id="cpfLoginInput">
+                    <input type="text" name="cnpj_login" placeholder="CNPJ" style="display: none;" id="cnpjLoginInput">
+                </div>
                 <a href="#">Esqueceu sua senha?</a>
                 <button type="submit">Login</button>
             </form>
@@ -167,106 +194,64 @@
     const signInButton = document.getElementById('signIn');
     const container = document.getElementById('container');
     const signupOptions = document.getElementById('signupOptions');
-    const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
     const cadastroPessoalForm = document.getElementById('cadastroPessoalForm');
-    const tipoSelect = document.querySelector('select[name="tipo"]');
-    const certArea = document.getElementById('certificado-area');
+    const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
 
-    // Elementos dos formulários de endereço (agora campos únicos)
+    // Elementos do Cadastro Pessoal
     const enderecoPessoalInput = document.getElementById('enderecoPessoalInput');
     const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
     const mostrarEnderecoPessoalBtn = document.getElementById('mostrarEnderecoPessoal');
     const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
-
-    // Botões de mostrar cadastro
-    const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
-    const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
-    const voltarCadastroCadastralBtn = document.getElementById('voltarCadastroCadastral');
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
-    const formCadastroPessoal = document.getElementById('formCadastroPessoal');
-    const formCadastroCadastral = document.getElementById('formCadastroCadastral');
-    const cadastrarPessoalBtn = document.getElementById('cadastrarPessoal');
-    const proximoCadastroCadastralBtn = document.getElementById('proximoCadastroCadastral');
+    const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
+
+    // Elementos do Cadastro Cadastral
+    const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
+    const voltarCadastroCadastralBtn = document.getElementById('voltarCadastroCadastral');
 
     signUpButton.addEventListener('click', () => {
         container.classList.add("right-panel-active");
-        if (signupOptions) {
-            signupOptions.style.display = 'flex';
-        }
-        cadastroCadastralForm.style.display = 'none';
+        signupOptions.style.display = 'flex';
         cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
     });
 
     signInButton.addEventListener('click', () => {
         container.classList.remove("right-panel-active");
-        cadastroCadastralForm.style.display = 'none';
-        cadastroPessoalForm.style.display = 'none';
         signupOptions.style.display = 'none';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
     });
 
-    if (tipoSelect && certArea) {
-        tipoSelect.addEventListener('change', () => {
-            certArea.style.display = tipoSelect.value === 'funcionario' ? 'block' : 'none';
-        });
-    }
+    // Mostrar formulário de Cadastro Pessoal
+    mostrarCadastroPessoalBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'none';
+        cadastroPessoalForm.style.display = 'block';
+        cadastroCadastralForm.style.display = 'none';
+    });
 
-    function mostrarCampos() {
-        let tipo = document.getElementById("tipo").value;
-        document.getElementById("camposFuncionario").style.display = tipo === 'funcionario' ? 'block' : 'none';
-    }
+    // Mostrar formulário de Cadastro Cadastral
+    mostrarCadastroCadastralBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'none';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'block';
+    });
 
-    const fotoInput = document.getElementById('fotoInput');
-    const preview = document.getElementById('preview');
-    if (fotoInput) {
-        fotoInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-    }
+    // Voltar para a seleção de cadastro (do Pessoal)
+    voltarCadastroPessoalBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'flex';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
+    });
 
-    // Event listeners para mostrar os formulários de cadastro
-    if (mostrarCadastroCadastralBtn && cadastroCadastralForm && signupOptions) {
-        mostrarCadastroCadastralBtn.addEventListener('click', () => {
-            const cadastroPessoalConcluido = localStorage.getItem('cadastroPessoalConcluido');
-            if (cadastroPessoalConcluido === 'true') {
-                signupOptions.style.display = 'none';
-                cadastroCadastralForm.style.display = 'block';
-                cadastroPessoalForm.style.display = 'none';
-            } else {
-                alert('Você precisa completar o Cadastro Pessoal primeiro.');
-            }
-        });
-    }
+    // Voltar para a seleção de cadastro (do Cadastral)
+    voltarCadastroCadastralBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'flex';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
+    });
 
-    if (mostrarCadastroPessoalBtn && cadastroPessoalForm && signupOptions) {
-        mostrarCadastroPessoalBtn.addEventListener('click', () => {
-            signupOptions.style.display = 'none';
-            cadastroPessoalForm.style.display = 'block';
-            cadastroCadastralForm.style.display = 'none';
-        });
-    }
-
-    // Event listeners para voltar para a escolha de cadastro
-    if (voltarCadastroCadastralBtn && signupOptions && cadastroCadastralForm) {
-        voltarCadastroCadastralBtn.addEventListener('click', () => {
-            cadastroCadastralForm.style.display = 'none';
-            signupOptions.style.display = 'flex';
-        });
-    }
-
-    if (voltarCadastroPessoalBtn && signupOptions && cadastroPessoalForm) {
-        voltarCadastroPessoalBtn.addEventListener('click', () => {
-            cadastroPessoalForm.style.display = 'none';
-            signupOptions.style.display = 'flex';
-        });
-    }
-
-    // Lógica para alternar entre os campos de endereço
+    // Lógica para alternar entre os campos de endereço (Cadastro Pessoal)
     if (mostrarEnderecoPessoalBtn && enderecoPessoalInput && enderecoCNPJInput) {
         mostrarEnderecoPessoalBtn.addEventListener('click', () => {
             enderecoPessoalInput.classList.add('active');
@@ -285,24 +270,25 @@
         });
     }
 
-    // Impedir o envio do formulário de Cadastro Pessoal
-    if (formCadastroPessoal && cadastrarPessoalBtn) {
-        formCadastroPessoal.addEventListener('submit', (event) => {
-            event.preventDefault(); // Impede o comportamento padrão de submit
-            localStorage.setItem('cadastroPessoalConcluido', 'true');
-            alert('Cadastro Pessoal Concluído (simulação).');
-            // Aqui você pode adicionar outras ações que deseja realizar sem sair da página.
-        });
-    }
+    // Login
+    const loginComCPFBtn = document.getElementById('loginComCPF');
+    const loginComCNPJBtn = document.getElementById('loginComCNPJ');
+    const cpfLoginInput = document.getElementById('cpfLoginInput');
+    const cnpjLoginInput = document.getElementById('cnpjLoginInput');
 
-    // Impedir o envio do formulário de Cadastro Cadastral (ao clicar em "Próximo")
-    if (formCadastroCadastral && proximoCadastroCadastralBtn) {
-        formCadastroCadastral.addEventListener('submit', (event) => {
-            event.preventDefault(); // Impede o comportamento padrão de submit
-            alert('Próxima etapa do Cadastro Cadastral (simulação).');
-            // Aqui você pode adicionar a lógica para a próxima etapa do cadastro cadastral.
-        });
-    }
+    loginComCPFBtn.addEventListener('click', () => {
+        cpfLoginInput.style.display = 'block';
+        cnpjLoginInput.style.display = 'none';
+        loginComCPFBtn.classList.add('active');
+        loginComCNPJBtn.classList.remove('active');
+    });
+
+    loginComCNPJBtn.addEventListener('click', () => {
+        cpfLoginInput.style.display = 'none';
+        cnpjLoginInput.style.display = 'block';
+        loginComCPFBtn.classList.remove('active');
+        loginComCNPJBtn.classList.add('active');
+    });
 </script>
 </body>
 </html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Login e Cadastro </title>
+    <link rel="stylesheet" href="../css/loginCadastro.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <style>
+        /* Estilos CSS (como antes) */
+        .signup-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .signup-options button {
+            width: 100%;
+            margin: 8px 0;
+            text-align: center;
+        }
+
+        .cadastro-form {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .cadastro-form h4 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .cadastro-form input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .cadastro-form button[type="submit"],
+        .cadastro-form button[type="button"] {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .form-container.sign-up-container {
+            align-items: flex-start; /* Alinhar o conteúdo do cadastro no topo */
+            overflow-y: auto; /* Permitir rolagem se o conteúdo for muito longo */
+        }
+
+        .endereco-selector {
+            display: flex;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .endereco-selector button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+
+        .endereco-selector button.active {
+            background-color: #eee;
+        }
+
+        .endereco-input-container {
+            width: 100%;
+        }
+
+        .endereco-input {
+            display: none;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .endereco-input.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="form-container sign-up-container">
+            <form action="../php/cadastro.php" method="POST" enctype="multipart/form-data" class="cadastro-form">
+                <h2>Crie uma Conta:</h2>
+
+                <span>Tipo de usuário</span>
+                <select name="tipo" id="tipo" onchange="mostrarCampos()" required>
+                    <option value="cliente">Cliente</option>
+                    <option value="funcionario">Funcionário</option>
+                </select>
+                <div id="camposFuncionario" style="display:none;">
+                    <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+                    <label for="comentario"> Deixe um comentario: </label>
+                    <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
+                </div>
+
+                <input type="text" name="nome" placeholder="Nome" required />
+                <input type="email" name="email" placeholder="E-mail" required />
+                <input type="password" name="senha" placeholder="Senha" required />
+                <input type="text" name="cpf" placeholder="CPF" />
+                <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
+
+                <h4>Endereço</h4>
+                <div class="endereco-selector">
+                    <button type="button" id="mostrarEnderecoPessoal" class="active">Pessoal</button>
+                    <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
+                </div>
+                <div class="endereco-input-container">
+                    <input type="text" id="enderecoPessoalInput" name="endereco_pes" placeholder="Endereço Pessoal" class="endereco-input active" />
+                    <input type="text" id="enderecoCNPJInput" name="endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
+                </div>
+
+                <label>Foto de Perfil</label>
+                <input type="file" name="foto_perfil" accept="image/*" required />
+
+                <div id="certificado-area" style="display: none;">
+                    <label>Certificado (somente para funcionários)</label>
+                    <input type="file" name="certificado" accept="image/*" />
+                </div>
+
+                <button type="submit">Cadastrar-se</button>
+            </form>
+        </div>
+        <div class="form-container sign-in-container">
+            <form action="../php/login.php" method="post">
+                <h1>Entrar</h1>
+                    <input type="text" name="nome" placeholder="Nome" required>
+                    <input type="password" name="senha" placeholder="Senha" required>
+                <a href="#">Esqueceu sua senha?</a>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Bem-vindo de volta!</h1>
+                    <p>Para se manter conectado, entre com suas credenciais</p>
+                    <button class="ghost" id="signIn">Entrar</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Seja Bem-vindo!</h1>
+                    <p>Insira seus dados e comece sua jornada conosco</p>
+                    <button class="ghost" id="signUp">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const signUpButton = document.getElementById('signUp');
+    const signInButton = document.getElementById('signIn');
+    const container = document.getElementById('container');
+    const tipoSelect = document.querySelector('select[name="tipo"]');
+    const certArea = document.getElementById('certificado-area');
+
+    // Elementos dos formulários de endereço
+    const enderecoPessoalInput = document.getElementById('enderecoPessoalInput');
+    const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
+    const mostrarEnderecoPessoalBtn = document.getElementById('mostrarEnderecoPessoal');
+    const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
+
+    signUpButton.addEventListener('click', () => {
+        container.classList.add("right-panel-active");
+    });
+
+    signInButton.addEventListener('click', () => {
+        container.classList.remove("right-panel-active");
+    });
+
+    if (tipoSelect && certArea) {
+        tipoSelect.addEventListener('change', () => {
+            certArea.style.display = tipoSelect.value === 'funcionario' ? 'block' : 'none';
+        });
+    }
+
+    function mostrarCampos() {
+        let tipo = document.getElementById("tipo").value;
+        document.getElementById("camposFuncionario").style.display = tipo === 'funcionario' ? 'block' : 'none';
+    }
+
+    const fotoInput = document.getElementById('foto_perfil');
+    const preview = document.getElementById('preview'); // Você pode precisar criar um elemento img com esse ID para a pré-visualização
+
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            // (Opcional: Lógica para mostrar a pré-visualização da foto, se desejado)
+        });
+    }
+
+    // Lógica para alternar entre os campos de endereço
+    if (mostrarEnderecoPessoalBtn && enderecoPessoalInput && enderecoCNPJInput) {
+        mostrarEnderecoPessoalBtn.addEventListener('click', () => {
+            enderecoPessoalInput.classList.add('active');
+            enderecoCNPJInput.classList.remove('active');
+            mostrarEnderecoPessoalBtn.classList.add('active');
+            mostrarEnderecoCNPJBtn.classList.remove('active');
+        });
+    }
+
+    if (mostrarEnderecoCNPJBtn && enderecoPessoalInput && enderecoCNPJInput) {
+        mostrarEnderecoCNPJBtn.addEventListener('click', () => {
+            enderecoCNPJInput.classList.add('active');
+            enderecoPessoalInput.classList.remove('active');
+            mostrarEnderecoCNPJBtn.classList.add('active');
+            mostrarEnderecoPessoalBtn.classList.remove('active');
+        });
+    }
+</script>
+</body>
+</html>
