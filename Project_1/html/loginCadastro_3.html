@@ -6,6 +6,7 @@
     <title> Login e Cadastro </title>
     <link rel="stylesheet" href="../css/loginCadastro.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <style>
         /* Estilos CSS (como antes) */
@@ -49,8 +50,8 @@
         }
 
         .form-container.sign-up-container {
-            align-items: flex-start;
-            overflow-y: auto;
+            align-items: flex-start; /* Alinhar o conteúdo do cadastro no topo */
+            overflow-y: auto; /* Permitir rolagem se o conteúdo for muito longo */
         }
 
         .endereco-selector {
@@ -110,19 +111,28 @@
         .login-options button.active {
             background-color: #eee;
         }
-
-        .alert-success {
-            color: green;
-            margin-top: 10px;
-        }
-
-        .alert-error {
-            color: red;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
+
+    <?php
+        if (isset($_SESSION['cadastro_pessoal_sucesso']) && $_SESSION['cadastro_pessoal_sucesso']) {
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">Cadastro pessoal realizado com sucesso!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            unset($_SESSION['cadastro_pessoal_sucesso']);
+        }
+        if (isset($_SESSION['cadastro_pessoal_erro']) && $_SESSION['cadastro_pessoal_erro']) {
+            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">Erro no cadastro pessoal.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            unset($_SESSION['cadastro_pessoal_erro']);
+        }
+        if (isset($_SESSION['cadastro_cadastral_sucesso']) && $_SESSION['cadastro_cadastral_sucesso']) {
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 70px; right: 20px; z-index: 1050;">Cadastro cadastral realizado com sucesso!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            unset($_SESSION['cadastro_cadastral_sucesso']);
+        }
+        if (isset($_SESSION['cadastro_cadastral_erro']) && $_SESSION['cadastro_cadastral_erro']) {
+            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: fixed; top: 70px; right: 20px; z-index: 1050;">Erro no cadastro cadastral: ' . $_SESSION['cadastro_cadastral_erro'] . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            unset($_SESSION['cadastro_cadastral_erro']);
+        }
+    ?>
     <div class="container" id="container">
         <div class="form-container sign-up-container">
             <h2>Crie uma Conta:</h2>
@@ -133,7 +143,7 @@
 
             <div id="cadastroPessoalForm" class="cadastro-form">
                 <h3>Informações Pessoais</h3>
-                <form id="formCadastroPessoal" action="..\php\cadastro_pessoal_1.php" method="POST">
+                <form id="formCadastroPessoal" action="..\php\cadastro_pessoal.php" method="POST" onsubmit="exibirAlertaCadastroPessoal(event)">
                     <input type="text" name="nome" placeholder="nome" required />
                     <input type="password" name="senha_pessoa" placeholder="Senha" required />
                     <input type="text" name="CPF" placeholder="CPF"/>
@@ -141,25 +151,12 @@
 
                     <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
-                    <div id="cadastroPessoalAlert">
-                        <?php
-                            session_start();
-                            if (isset($_SESSION['cadastro_pessoal_sucesso']) && $_SESSION['cadastro_pessoal_sucesso']) {
-                                echo '<p class="alert-success">Cadastro pessoal realizado com sucesso!</p>';
-                                unset($_SESSION['cadastro_pessoal_sucesso']);
-                            }
-                            if (isset($_SESSION['cadastro_pessoal_erro']) && $_SESSION['cadastro_pessoal_erro']) {
-                                echo '<p class="alert-error">Erro no cadastro pessoal.</p>';
-                                unset($_SESSION['cadastro_pessoal_erro']);
-                            }
-                        ?>
-                    </div>
                 </form>
             </div>
 
             <div id="cadastroCadastralForm" class="cadastro-form">
                 <h3>Informações Cadastrais</h3>
-                <form id="formCadastroCadastral" action="processa_cadastro_cadastral.php" method="POST">
+                <form id="formCadastroCadastral" action="..\php\cadastro_cliente.php" method="POST" onsubmit="exibirAlertaCadastroCadastral(event)">
                     <input type="text" name="nome_cad" placeholder="Nome" required />
                     <input type="email" name="email" placeholder="E-mail" required />
                     <input type="password" name="senha_cad" placeholder="Senha" required />
@@ -170,24 +167,12 @@
                         <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
                     </div>
                     <div class="endereco-input-container">
-                        <input type="text" id="enderecoClienteInput" name="nome_endereco_pessoa" placeholder="Endereço Cliente" class="endereco-input active" />
+                        <input type="text" id="enderecoClienteInput" name="nome_endereco_cliente" placeholder="Endereço Cliente" class="endereco-input active" />
                         <input type="text" id="enderecoCNPJInput" name="nome_endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
                     </div>
 
                     <button type="submit" id="proximoCadastroCadastral">Próximo</button>
                     <button type="button" id="voltarCadastroCadastral">Voltar</button>
-                    <div id="cadastroCadastralAlert">
-                        <?php
-                            if (isset($_SESSION['cadastro_cadastral_sucesso']) && $_SESSION['cadastro_cadastral_sucesso']) {
-                                echo '<p class="alert-success">Cadastro cadastral realizado com sucesso!</p>';
-                                unset($_SESSION['cadastro_cadastral_sucesso']);
-                            }
-                            if (isset($_SESSION['cadastro_cadastral_erro']) && is_string($_SESSION['cadastro_cadastral_erro'])) {
-                                echo '<p class="alert-error">' . $_SESSION['cadastro_cadastral_erro'] . '</p>';
-                                unset($_SESSION['cadastro_cadastral_erro']);
-                            }
-                        ?>
-                    </div>
                 </form>
             </div>
         </div>
@@ -225,6 +210,17 @@
         </div>
     </div>
 
+    <div id="alertaCadastroPessoal" class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; display: none;">
+        Cadastro pessoal concluído com sucesso!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div id="alertaCadastroCadastral" class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; display: none;">
+        Cadastro cadastral concluído com sucesso!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script>
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
@@ -232,6 +228,8 @@
     const signupOptions = document.getElementById('signupOptions');
     const cadastroPessoalForm = document.getElementById('cadastroPessoalForm');
     const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
+    const alertaCadastroPessoal = document.getElementById('alertaCadastroPessoal');
+    const alertaCadastroCadastral = document.getElementById('alertaCadastroCadastral');
 
     // Elementos do Cadastro Pessoal
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
@@ -282,4 +280,71 @@
 
     // Voltar para a seleção de cadastro (do Cadastral)
     voltarCadastroCadastralBtn.addEventListener('click', () => {
-        signupOptions.
+        signupOptions.style.display = 'flex';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
+    });
+
+    // Lógica para alternar entre os campos de endereço (Cadastro Cadastral)
+    if (mostrarEnderecoClienteBtn && enderecoClienteInput && enderecoCNPJInput) {
+        mostrarEnderecoClienteBtn.addEventListener('click', () => {
+            enderecoClienteInput.classList.add('active');
+            enderecoCNPJInput.classList.remove('active');
+            mostrarEnderecoClienteBtn.classList.add('active');
+            mostrarEnderecoCNPJBtn.classList.remove('active');
+        });
+    }
+
+    if (mostrarEnderecoCNPJBtn && enderecoClienteInput && enderecoCNPJInput) {
+        mostrarEnderecoCNPJBtn.addEventListener('click', () => {
+            enderecoCNPJInput.classList.add('active');
+            enderecoClienteInput.classList.remove('active');
+            mostrarEnderecoCNPJBtn.classList.add('active');
+            mostrarEnderecoClienteBtn.classList.remove('active');
+        });
+    }
+
+    // Login
+    const loginComCPFBtn = document.getElementById('loginComCPF');
+    const loginComCNPJBtn = document.getElementById('loginComCNPJ');
+    const cpfLoginInput = document.getElementById('cpfLoginInput');
+    const cnpjLoginInput = document.getElementById('cnpjLoginInput');
+
+    loginComCPFBtn.addEventListener('click', () => {
+        cpfLoginInput.style.display = 'block';
+        cnpjLoginInput.style.display = 'none';
+        loginComCPFBtn.classList.add('active');
+        loginComCNPJBtn.classList.remove('active');
+    });
+
+    loginComCNPJBtn.addEventListener('click', () => {
+        cpfLoginInput.style.display = 'none';
+        cnpjLoginInput.style.display = 'block';
+        loginComCPFBtn.classList.remove('active');
+        loginComCNPJBtn.classList.add('active');
+    });
+
+    function exibirAlertaCadastroPessoal(event) {
+        // Impede o envio real do formulário para fins de demonstração
+        event.preventDefault();
+        alertaCadastroPessoal.style.display = 'block';
+        // Oculta o alerta após alguns segundos (opcional)
+        setTimeout(() => {
+            alertaCadastroPessoal.style.display = 'none';
+            // Aqui você pode redirecionar o usuário ou realizar outras ações pós-cadastro
+        }, 3000);
+    }
+
+    function exibirAlertaCadastroCadastral(event) {
+        // Impede o envio real do formulário para fins de demonstração
+        event.preventDefault();
+        alertaCadastroCadastral.style.display = 'block';
+        // Oculta o alerta após alguns segundos (opcional)
+        setTimeout(() => {
+            alertaCadastroCadastral.style.display = 'none';
+            // Aqui você pode redirecionar o usuário ou realizar outras ações pós-cadastro
+        }, 3000);
+    }
+</script>
+</body>
+</html>
