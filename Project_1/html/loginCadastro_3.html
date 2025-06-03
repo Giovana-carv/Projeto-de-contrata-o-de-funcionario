@@ -123,7 +123,7 @@
 
             <div id="cadastroPessoalForm" class="cadastro-form">
                 <h3>Informações Pessoais</h3>
-                <form id="formCadastroPessoal" action="..\php\cadastro_pessoal_1.php" method="POST">
+                <form id="formCadastroPessoal" action="..\php\cadastro_pessoal.php" method="POST">
                     <input type="text" name="nome" placeholder="nome" required />
                     <input type="password" name="senha_pessoa" placeholder="Senha" required />
                     <input type="text" name="CPF" placeholder="CPF"/>
@@ -136,7 +136,7 @@
 
             <div id="cadastroCadastralForm" class="cadastro-form">
                 <h3>Informações Cadastrais</h3>
-                <form id="formCadastroCadastral" action="processa_cadastro_cadastral.php" method="POST">
+                <form id="formCadastroCadastral" action="..\php\cadastro_cliente.php" method="POST">
                     <input type="text" name="nome_cad" placeholder="Nome" required />
                     <input type="email" name="email" placeholder="E-mail" required />
                     <input type="password" name="senha_cad" placeholder="Senha" required />
@@ -147,7 +147,7 @@
                         <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
                     </div>
                     <div class="endereco-input-container">
-                        <input type="text" id="enderecoClienteInput" name="nome_endereco_pessoa" placeholder="Endereço Cliente" class="endereco-input active" />
+                        <input type="text" id="enderecoClienteInput" name="nome_endereco_cliente" placeholder="Endereço Cliente" class="endereco-input active" />
                         <input type="text" id="enderecoCNPJInput" name="nome_endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
                     </div>
 
