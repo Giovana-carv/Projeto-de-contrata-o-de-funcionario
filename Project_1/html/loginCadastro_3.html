@@ -129,16 +129,6 @@
                     <input type="text" name="CPF" placeholder="CPF"/>
                     <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
 
-                    <h4>Endereço</h4>
-                    <div class="endereco-selector">
-                        <button type="button" id="mostrarEnderecoPessoal" class="active">Pessoal</button>
-                        <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
-                    </div>
-                    <div class="endereco-input-container">
-                        <input type="text" id="enderecoPessoalInput" name="nome_endereco_pessoa" placeholder="Endereço Pessoal" class="endereco-input active" />
-                        <input type="text" id="enderecoCNPJInput" name="nome_endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
-                    </div>
-
                     <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
                 </form>
@@ -150,6 +140,17 @@
                     <input type="text" name="nome_cad" placeholder="Nome" required />
                     <input type="email" name="email" placeholder="E-mail" required />
                     <input type="password" name="senha_cad" placeholder="Senha" required />
+
+                    <h4>Endereço</h4>
+                    <div class="endereco-selector">
+                        <button type="button" id="mostrarEnderecoCliente" class="active">Cliente</button>
+                        <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
+                    </div>
+                    <div class="endereco-input-container">
+                        <input type="text" id="enderecoClienteInput" name="nome_endereco_pessoa" placeholder="Endereço Cliente" class="endereco-input active" />
+                        <input type="text" id="enderecoCNPJInput" name="nome_endereco_cnpj" placeholder="Endereço CNPJ" class="endereco-input" />
+                    </div>
+
                     <button type="submit" id="proximoCadastroCadastral">Próximo</button>
                     <button type="button" id="voltarCadastroCadastral">Voltar</button>
                 </form>
@@ -198,16 +199,16 @@
     const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
 
     // Elementos do Cadastro Pessoal
-    const enderecoPessoalInput = document.getElementById('enderecoPessoalInput');
-    const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
-    const mostrarEnderecoPessoalBtn = document.getElementById('mostrarEnderecoPessoal');
-    const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
     const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
 
     // Elementos do Cadastro Cadastral
     const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
     const voltarCadastroCadastralBtn = document.getElementById('voltarCadastroCadastral');
+    const enderecoClienteInput = document.getElementById('enderecoClienteInput');
+    const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
+    const mostrarEnderecoClienteBtn = document.getElementById('mostrarEnderecoCliente');
+    const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
 
     signUpButton.addEventListener('click', () => {
         container.classList.add("right-panel-active");
@@ -251,22 +252,22 @@
         cadastroCadastralForm.style.display = 'none';
     });
 
-    // Lógica para alternar entre os campos de endereço (Cadastro Pessoal)
-    if (mostrarEnderecoPessoalBtn && enderecoPessoalInput && enderecoCNPJInput) {
-        mostrarEnderecoPessoalBtn.addEventListener('click', () => {
-            enderecoPessoalInput.classList.add('active');
+    // Lógica para alternar entre os campos de endereço (Cadastro Cadastral)
+    if (mostrarEnderecoClienteBtn && enderecoClienteInput && enderecoCNPJInput) {
+        mostrarEnderecoClienteBtn.addEventListener('click', () => {
+            enderecoClienteInput.classList.add('active');
             enderecoCNPJInput.classList.remove('active');
-            mostrarEnderecoPessoalBtn.classList.add('active');
+            mostrarEnderecoClienteBtn.classList.add('active');
             mostrarEnderecoCNPJBtn.classList.remove('active');
         });
     }
 
-    if (mostrarEnderecoCNPJBtn && enderecoPessoalInput && enderecoCNPJInput) {
+    if (mostrarEnderecoCNPJBtn && enderecoClienteInput && enderecoCNPJInput) {
         mostrarEnderecoCNPJBtn.addEventListener('click', () => {
             enderecoCNPJInput.classList.add('active');
-            enderecoPessoalInput.classList.remove('active');
+            enderecoClienteInput.classList.remove('active');
             mostrarEnderecoCNPJBtn.classList.add('active');
-            mostrarEnderecoPessoalBtn.classList.remove('active');
+            mostrarEnderecoClienteBtn.classList.remove('active');
         });
     }
 
