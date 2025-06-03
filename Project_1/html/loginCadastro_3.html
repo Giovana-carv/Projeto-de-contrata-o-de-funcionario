@@ -114,25 +114,7 @@
     </style>
 </head>
 <body>
-
-    <?php
-        if (isset($_SESSION['cadastro_pessoal_sucesso']) && $_SESSION['cadastro_pessoal_sucesso']) {
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">Cadastro pessoal realizado com sucesso!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            unset($_SESSION['cadastro_pessoal_sucesso']);
-        }
-        if (isset($_SESSION['cadastro_pessoal_erro']) && $_SESSION['cadastro_pessoal_erro']) {
-            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">Erro no cadastro pessoal.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            unset($_SESSION['cadastro_pessoal_erro']);
-        }
-        if (isset($_SESSION['cadastro_cadastral_sucesso']) && $_SESSION['cadastro_cadastral_sucesso']) {
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 70px; right: 20px; z-index: 1050;">Cadastro cadastral realizado com sucesso!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            unset($_SESSION['cadastro_cadastral_sucesso']);
-        }
-        if (isset($_SESSION['cadastro_cadastral_erro']) && $_SESSION['cadastro_cadastral_erro']) {
-            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: fixed; top: 70px; right: 20px; z-index: 1050;">Erro no cadastro cadastral: ' . $_SESSION['cadastro_cadastral_erro'] . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            unset($_SESSION['cadastro_cadastral_erro']);
-        }
-    ?>
+    
     <div class="container" id="container">
         <div class="form-container sign-up-container">
             <h2>Crie uma Conta:</h2>
@@ -266,9 +248,7 @@
 
     // Mostrar formulário de Cadastro Cadastral
     mostrarCadastroCadastralBtn.addEventListener('click', () => {
-        signupOptions.style.display = 'none';
-        cadastroPessoalForm.style.display = 'none';
-        cadastroCadastralForm.style.display = 'block';
+       window.location.href = 'verificar_cpf_cadastro_cadastral.html';
     });
 
     // Voltar para a seleção de cadastro (do Pessoal)

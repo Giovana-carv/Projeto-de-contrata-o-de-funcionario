@@ -29,8 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pessoa_id = $pdo->lastInsertId();
         $_SESSION['cadastro_pessoal_sucesso'] = true;
         $_SESSION['pessoa_id'] = $pessoa_id;
-        // Salva o CPF na sessão para a verificação no cadastro cadastral
-        $_SESSION['pessoa_cpf'] = $cpf;
     } else {
         $_SESSION['cadastro_pessoal_erro'] = true;
     }
