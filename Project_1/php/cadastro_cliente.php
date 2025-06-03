@@ -1,56 +1,74 @@
 <?php
-session_start();
-
-// ... (código de conexão com o banco de dados) ...
+// Inclua seu arquivo de conexão com o banco de dados
+include 'conexao.php'; // Certifique-se de que este arquivo existe
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome_cliente = $_POST['nome_cad'];
-    $email_cliente = $_POST['email'];
-    $senha_cliente = $_POST['senha_cad'];
-    $nome_endereco_cliente = isset($_POST['nome_endereco_cliente']) ? $_POST['nome_endereco_cliente'] : '';
-    $nome_endereco_cnpj = isset($_POST['nome_endereco_cnpj']) ? $_POST['nome_endereco_cnpj'] : '';
+    $nome_cad = $_POST['nome_cad'];
+    $email = $_POST['email'];
+    $senha_cad = password_hash($_POST['senha_cad'], PASSWORD_DEFAULT); // Hash da senha!
+    $cpf_cliente = $_POST['cpf_cliente']; // O CPF virá do campo readonly
+    $nome_endereco_cliente = $_POST['nome_endereco_cliente'];
+    $nome_endereco_cnpj = $_POST['nome_endereco_cnpj'];
 
-    // *** VERIFICAÇÃO SE O CPF FOI VERIFICADO (OPCIONAL) ***
-        if (!isset($_SESSION['cpf_verificado']) && !isset($_SESSION['pessoa_cpf'])) {
-        $_SESSION['cadastro_cadastral_erro'] = "Erro: CPF não verificado.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-       exit();
-    }
-    $cpf_para_cadastro = $_SESSION['pessoa_cpf'] ?? ($_SESSION['cpf_verificado'] ?? null);
-    if (!$cpf_para_cadastro) {
-        $_SESSION['cadastro_cadastral_erro'] = "Erro: Informação de CPF não encontrada.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);
-        exit();
+    // Validação básica
+    if (empty($nome_cad) || empty($email) || empty($senha_cad) || empty($cpf_cliente)) {
+        echo "Erro: Por favor, preencha todos os campos obrigatórios.";
+        exit;
     }
 
-    $sql_cliente = "INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, CPF_pessoa)
-                    VALUES (:nome, :email, :senha, :cpf)";
-    $stmt_cliente = $pdo->prepare($sql_cliente);
-    $stmt_cliente->bindParam(':nome', $nome_cliente);
-    $stmt_cliente->bindParam(':email', $email_cliente);
-    $stmt_cliente->bindParam(':senha', $senha_cliente);
-    $stmt_cliente->bindParam(':cpf', $cpf_para_cadastro);
+    // Remover caracteres não numéricos do CPF
+    $cpf_cliente = preg_replace('/[^0-9]/', '', $cpf_cliente);
 
-    if ($stmt_cliente->execute()) {
-        $cliente_id = $pdo->lastInsertId();
-        $sql_endereco = "INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj)
-                            VALUES (:cliente_id, :endereco_cliente, :endereco_cnpj)";
-        $stmt_endereco = $pdo->prepare($sql_endereco);
-        $stmt_endereco->bindParam(':cliente_id', $cliente_id);
-        $stmt_endereco->bindParam(':endereco_cliente', $nome_endereco_cliente);
-        $stmt_endereco->bindParam(':endereco_cnpj', $nome_endereco_cnpj);
+    try {
+        // 1. Verificar se o CPF existe na tabela 'pessoa' e obter o IDpessoa_PK
+        $stmt_pessoa = $pdo->prepare("SELECT IDpessoa_PK FROM pessoa WHERE CPF = ?");
+        $stmt_pessoa->execute([$cpf_cliente]);
+        $pessoa = $stmt_pessoa->fetch(PDO::FETCH_ASSOC);
 
-        if ($stmt_endereco->execute()) {
-            $_SESSION['cadastro_cadastral_sucesso'] = true;
-            unset($_SESSION['cpf_verificado']); // Limpar a sessão após o cadastro
-        } else {
-            $_SESSION['cadastro_cadastral_erro'] = "Erro ao cadastrar os endereços.";
+        if (!$pessoa) {
+            echo "Erro: CPF não encontrado na base de dados de pessoas. Por favor, cadastre-se primeiro como pessoa.";
+            exit;
         }
-    } else {
-        $_SESSION['cadastro_cadastral_erro'] = "Erro ao cadastrar os dados do cliente.";
-    }
+        $idPessoaFK = $pessoa['IDpessoa_PK'];
 
-    header("Location: " . $_SERVER['HTTP_REFERER'] . "#signup");
-    exit();
+        // 2. Inserir na tabela cliente
+        // Cuidado: a estrutura da sua tabela cliente no SQL tinha 'CPF_pessoa INT',
+        // mas deveria ser 'CPF_pessoa VARCHAR(11)' se você quer usar o CPF diretamente
+        // como FK, ou 'IDpessoa_FK INT' se quiser usar o IDpessoa_PK.
+        // Considerando que você tem 'FOREIGN KEY (CPF_pessoa) REFERENCES pessoa(CPF)',
+        // vou assumir que 'CPF_pessoa' na tabela 'cliente' deve ser o CPF String.
+        // SE você quiser usar o IDpessoa_PK como FK, mude sua tabela cliente e o código aqui.
+        // A melhor prática é usar IDpessoa_PK como FK em 'cliente'.
+        // Se sua tabela 'cliente' tem 'CPF_pessoa', e você quer usar o CPF string como FK,
+        // então o campo CPF da tabela 'pessoa' PRECISA ser uma chave primária ou ter um índice único.
+
+        // Vamos usar o IDpessoa_PK como FK, que é a melhor prática.
+        // Se sua tabela cliente não tiver IDpessoa_FK, adicione:
+        // ALTER TABLE cliente ADD COLUMN IDpessoa_FK INT;
+        // ALTER TABLE cliente ADD CONSTRAINT fk_cliente_pessoa FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK);
+        // E remova CPF_pessoa se não for usá-lo como FK.
+
+        // Inserir na tabela cliente (assumindo que você adicionou IDpessoa_FK em cliente)
+        $stmt_cliente = $pdo->prepare("INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, IDpessoa_FK) VALUES (?, ?, ?, ?)");
+        if ($stmt_cliente->execute([$nome_cad, $email, $senha_cad, $idPessoaFK])) {
+            $last_cliente_id = $pdo->lastInsertId();
+
+            // 3. Inserir na tabela endereco
+            if (!empty($nome_endereco_cliente) || !empty($nome_endereco_cnpj)) {
+                $stmt_endereco = $pdo->prepare("INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj) VALUES (?, ?, ?)");
+                $stmt_endereco->execute([$last_cliente_id, $nome_endereco_cliente, $nome_endereco_cnpj]);
+            }
+            echo "Cadastro cadastral realizado com sucesso!";
+            // Redirecionar ou mostrar mensagem de sucesso
+            // header('Location: ../loginCadastro.html?cadastro=sucesso'); // Exemplo
+        } else {
+            echo "Erro ao cadastrar cliente.";
+        }
+
+    } catch (PDOException $e) {
+        echo "Erro: " . $e->getMessage();
+    }
+} else {
+    echo "Método de requisição inválido.";
 }
 ?>

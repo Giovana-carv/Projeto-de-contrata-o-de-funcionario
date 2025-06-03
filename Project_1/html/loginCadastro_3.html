@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Login e Cadastro </title>
+    <title>Login e Cadastro</title>
     <link rel="stylesheet" href="../css/loginCadastro.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -111,6 +111,34 @@
         .login-options button.active {
             background-color: #eee;
         }
+
+        /* Novos estilos para a seção de verificação de CPF */
+        .cpf-verification {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .cpf-verification input {
+            width: calc(100% - 20px); /* Ajuste para espaçamento do botão */
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .cpf-verification button {
+            width: 100%;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745; /* Cor de exemplo */
+            color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +146,15 @@
     <div class="container" id="container">
         <div class="form-container sign-up-container">
             <h2>Crie uma Conta:</h2>
-            <div class="signup-options" id="signupOptions">
+
+            <div class="cpf-verification" id="cpfVerificationSection">
+                <h4>Informe seu CPF para continuar:</h4>
+                <input type="text" id="inputCPF" placeholder="CPF (somente números)" maxlength="11" pattern="\d{11}" title="Por favor, insira um CPF válido com 11 dígitos (somente números)." required />
+                <button id="verificarCPFButton">Verificar CPF</button>
+                <div id="cpfMessage" class="alert mt-3" style="display: none;"></div>
+            </div>
+
+            <div class="signup-options" id="signupOptions" style="display: none;">
                 <button id="mostrarCadastroPessoal">Cadastro Pessoal</button>
                 <button id="mostrarCadastroCadastral">Cadastro Cadastral</button>
             </div>
@@ -126,10 +162,9 @@
             <div id="cadastroPessoalForm" class="cadastro-form">
                 <h3>Informações Pessoais</h3>
                 <form id="formCadastroPessoal" action="..\php\cadastro_pessoal.php" method="POST" onsubmit="exibirAlertaCadastroPessoal(event)">
-                    <input type="text" name="nome" placeholder="nome" required />
+                    <input type="text" name="nome" placeholder="Nome Completo" required />
                     <input type="password" name="senha_pessoa" placeholder="Senha" required />
-                    <input type="text" name="CPF" placeholder="CPF"/>
-                    <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
+                    <input type="text" name="CPF" id="cpfPessoal" placeholder="CPF" readonly /> <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
 
                     <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
@@ -142,8 +177,7 @@
                     <input type="text" name="nome_cad" placeholder="Nome" required />
                     <input type="email" name="email" placeholder="E-mail" required />
                     <input type="password" name="senha_cad" placeholder="Senha" required />
-
-                    <h4>Endereço</h4>
+                    <input type="text" name="cpf_cliente" id="cpfCadastral" placeholder="CPF" readonly /> <h4>Endereço</h4>
                     <div class="endereco-selector">
                         <button type="button" id="mostrarEnderecoCliente" class="active">Cliente</button>
                         <button type="button" id="mostrarEnderecoCNPJ">CNPJ</button>
@@ -207,6 +241,13 @@
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
     const container = document.getElementById('container');
+
+    // Seção de Verificação de CPF
+    const cpfVerificationSection = document.getElementById('cpfVerificationSection');
+    const inputCPF = document.getElementById('inputCPF');
+    const verificarCPFButton = document.getElementById('verificarCPFButton');
+    const cpfMessage = document.getElementById('cpfMessage');
+
     const signupOptions = document.getElementById('signupOptions');
     const cadastroPessoalForm = document.getElementById('cadastroPessoalForm');
     const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
@@ -216,6 +257,7 @@
     // Elementos do Cadastro Pessoal
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
     const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
+    const cpfPessoalInput = document.getElementById('cpfPessoal'); // Novo: input de CPF no cadastro pessoal
 
     // Elementos do Cadastro Cadastral
     const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
@@ -224,45 +266,113 @@
     const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
     const mostrarEnderecoClienteBtn = document.getElementById('mostrarEnderecoCliente');
     const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
+    const cpfCadastralInput = document.getElementById('cpfCadastral'); // Novo: input de CPF no cadastro cadastral
 
     signUpButton.addEventListener('click', () => {
         container.classList.add("right-panel-active");
-        signupOptions.style.display = 'flex';
+        cpfVerificationSection.style.display = 'block'; // Mostrar a seção de verificação de CPF
+        signupOptions.style.display = 'none'; // Esconder opções de cadastro
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
+        cpfMessage.style.display = 'none'; // Esconder mensagem de CPF
+        inputCPF.value = ''; // Limpar o campo CPF
     });
 
     signInButton.addEventListener('click', () => {
         container.classList.remove("right-panel-active");
+        cpfVerificationSection.style.display = 'none'; // Esconder a seção de verificação de CPF
         signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
     });
+
+    // Lógica de Verificação de CPF
+    verificarCPFButton.addEventListener('click', async () => {
+        const cpf = inputCPF.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+        if (cpf.length !== 11) {
+            cpfMessage.textContent = 'Por favor, insira um CPF válido com 11 dígitos.';
+            cpfMessage.className = 'alert alert-danger mt-3';
+            cpfMessage.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('../php/verificar_cpf.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cpf: cpf })
+            });
+            const data = await response.json();
+
+            if (data.exists) {
+                cpfMessage.textContent = 'CPF existente! Você pode prosseguir para o Cadastro Cadastral.';
+                cpfMessage.className = 'alert alert-success mt-3';
+                signupOptions.style.display = 'flex'; // Mostra as opções de cadastro
+                mostrarCadastroPessoalBtn.style.display = 'none'; // Esconde "Cadastro Pessoal"
+                mostrarCadastroCadastralBtn.style.display = 'block'; // Mostra "Cadastro Cadastral"
+                cpfVerificationSection.style.display = 'none'; // Esconde a seção de verificação
+
+                // Preenche o CPF no formulário de Cadastro Cadastral
+                cpfCadastralInput.value = cpf;
+
+            } else {
+                cpfMessage.textContent = 'CPF não encontrado. Prossiga para o Cadastro Pessoal.';
+                cpfMessage.className = 'alert alert-warning mt-3';
+                signupOptions.style.display = 'flex'; // Mostra as opções de cadastro
+                mostrarCadastroPessoalBtn.style.display = 'block'; // Mostra "Cadastro Pessoal"
+                mostrarCadastroCadastralBtn.style.display = 'none'; // Esconde "Cadastro Cadastral"
+                cpfVerificationSection.style.display = 'none'; // Esconde a seção de verificação
+
+                // Preenche o CPF no formulário de Cadastro Pessoal
+                cpfPessoalInput.value = cpf;
+            }
+            cpfMessage.style.display = 'block';
+
+        } catch (error) {
+            console.error('Erro ao verificar CPF:', error);
+            cpfMessage.textContent = 'Erro ao verificar CPF. Tente novamente.';
+            cpfMessage.className = 'alert alert-danger mt-3';
+            cpfMessage.style.display = 'block';
+        }
+    });
+
 
     // Mostrar formulário de Cadastro Pessoal
     mostrarCadastroPessoalBtn.addEventListener('click', () => {
         signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'block';
         cadastroCadastralForm.style.display = 'none';
+        cpfMessage.style.display = 'none'; // Esconde a mensagem do CPF
     });
 
     // Mostrar formulário de Cadastro Cadastral
     mostrarCadastroCadastralBtn.addEventListener('click', () => {
-       window.location.href = 'verificar_cpf_cadastro_cadastral.html';
+        signupOptions.style.display = 'none';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'block';
+        cpfMessage.style.display = 'none'; // Esconde a mensagem do CPF
     });
 
     // Voltar para a seleção de cadastro (do Pessoal)
     voltarCadastroPessoalBtn.addEventListener('click', () => {
-        signupOptions.style.display = 'flex';
+        cpfVerificationSection.style.display = 'block'; // Volta para a seção de verificação
+        signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
+        cpfMessage.style.display = 'none'; // Esconde a mensagem do CPF
+        inputCPF.value = ''; // Limpa o campo CPF
     });
 
     // Voltar para a seleção de cadastro (do Cadastral)
     voltarCadastroCadastralBtn.addEventListener('click', () => {
-        signupOptions.style.display = 'flex';
+        cpfVerificationSection.style.display = 'block'; // Volta para a seção de verificação
+        signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
+        cpfMessage.style.display = 'none'; // Esconde a mensagem do CPF
+        inputCPF.value = ''; // Limpa o campo CPF
     });
 
     // Lógica para alternar entre os campos de endereço (Cadastro Cadastral)
@@ -312,6 +422,12 @@
         setTimeout(() => {
             alertaCadastroPessoal.style.display = 'none';
             // Aqui você pode redirecionar o usuário ou realizar outras ações pós-cadastro
+            container.classList.remove("right-panel-active"); // Volta para a tela de login
+            cpfVerificationSection.style.display = 'none'; // Esconde a seção de verificação
+            signupOptions.style.display = 'none';
+            cadastroPessoalForm.style.display = 'none';
+            cadastroCadastralForm.style.display = 'none';
+            inputCPF.value = ''; // Limpa o campo CPF
         }, 3000);
     }
 
@@ -323,6 +439,12 @@
         setTimeout(() => {
             alertaCadastroCadastral.style.display = 'none';
             // Aqui você pode redirecionar o usuário ou realizar outras ações pós-cadastro
+            container.classList.remove("right-panel-active"); // Volta para a tela de login
+            cpfVerificationSection.style.display = 'none'; // Esconde a seção de verificação
+            signupOptions.style.display = 'none';
+            cadastroPessoalForm.style.display = 'none';
+            cadastroCadastralForm.style.display = 'none';
+            inputCPF.value = ''; // Limpa o campo CPF
         }, 3000);
     }
 </script>

@@ -1,40 +1,45 @@
 <?php
-session_start();
-
-// Dados de conexão com o banco de dados
-$host = 'seu_host';
-$dbname = 'project_servico';
-$user = 'seu_usuario';
-$password = 'sua_senha';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erro na conexão com o banco de dados: " . $e->getMessage());
-}
+// Inclua seu arquivo de conexão com o banco de dados
+include 'conexao.php'; // Certifique-se de que este arquivo existe
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = $_POST['nome'];
-    $senha_pessoa = $_POST['senha_pessoa'];
-    $cpf = $_POST['CPF'];
+    $senha_pessoa = password_hash($_POST['senha_pessoa'], PASSWORD_DEFAULT); // Sempre hash a senha!
+    $cpf = $_POST['CPF']; // O CPF virá do campo readonly
 
-    $sql_pessoa = "INSERT INTO pessoa (senha_pessoa, CPF, nome) VALUES (:senha, :cpf, :nome)";
-    $stmt_pessoa = $pdo->prepare($sql_pessoa);
-    $stmt_pessoa->bindParam(':nome', $nome);
-    $stmt_pessoa->bindParam(':senha', $senha_pessoa);
-    $stmt_pessoa->bindParam(':cpf', $cpf);
-
-    if ($stmt_pessoa->execute()) {
-        $pessoa_id = $pdo->lastInsertId();
-        $_SESSION['cadastro_pessoal_sucesso'] = true;
-        $_SESSION['pessoa_id'] = $pessoa_id;
-    } else {
-        $_SESSION['cadastro_pessoal_erro'] = true;
+    // Validação básica
+    if (empty($nome) || empty($senha_pessoa) || empty($cpf)) {
+        // Tratar erro: dados incompletos
+        echo "Erro: Por favor, preencha todos os campos obrigatórios.";
+        exit;
     }
 
-    // Não redirecionamos, apenas voltamos para a página do formulário
-    header("Location: " . $_SERVER['HTTP_REFERER']);
-    exit();
+    // Remover caracteres não numéricos do CPF
+    $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+    try {
+        // Verificar se o CPF já existe ANTES de inserir (redundância, mas boa prática)
+        $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM pessoa WHERE CPF = ?");
+        $stmt_check->execute([$cpf]);
+        if ($stmt_check->fetchColumn() > 0) {
+            echo "Erro: CPF já cadastrado. Por favor, utilize o Cadastro Cadastral.";
+            exit;
+        }
+
+        // Inserir na tabela pessoa
+        $stmt = $pdo->prepare("INSERT INTO pessoa (nome, senha_pessoa, CPF) VALUES (?, ?, ?)");
+        if ($stmt->execute([$nome, $senha_pessoa, $cpf])) {
+            echo "Cadastro pessoal realizado com sucesso!";
+            // Redirecionar ou mostrar mensagem de sucesso
+            // header('Location: ../loginCadastro.html?cadastro=sucesso'); // Exemplo
+        } else {
+            echo "Erro ao cadastrar pessoa.";
+        }
+    } catch (PDOException $e) {
+        // Erro no banco de dados
+        echo "Erro: " . $e->getMessage();
+    }
+} else {
+    echo "Método de requisição inválido.";
 }
 ?>

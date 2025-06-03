@@ -1,41 +1,57 @@
 <?php
-session_start();
+header('Content-Type: application/json');
 
-// Dados de conexão com o banco de dados (substitua pelos seus)
-$host = 'localhost';
-$dbname = 'project_servico';
-$user = 'root';
-$password = '';
+// Inclua seu arquivo de conexão com o banco de dados aqui
+// Exemplo:
+include 'conexao.php'; // Certifique-se de que este arquivo existe e faz a conexão com seu banco de dados
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erro na conexão com o banco de dados: " . $e->getMessage());
-}
+$response = ['exists' => false];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $cpf_verificar = $_POST['cpf_verificar'];
+// Pega o JSON enviado pelo JavaScript
+$json_data = file_get_contents('php://input');
+$data = json_decode($json_data, true);
 
-    $sql_check_cpf = "SELECT CPF FROM pessoa WHERE CPF = :cpf";
-    $stmt_check_cpf = $pdo->prepare($sql_check_cpf);
-    $stmt_check_cpf->bindParam(':cpf', $cpf_verificar);
-    $stmt_check_cpf->execute();
+if (isset($data['cpf'])) {
+    $cpf = $data['cpf'];
 
-    if ($stmt_check_cpf->rowCount() > 0) {
-        // CPF encontrado, redirecionar para o formulário de cadastro cadastral
-        $_SESSION['cpf_verificado'] = $cpf_verificar; // Opcional: guardar o CPF para usar no cadastro
-        header("Location: loginCadastro.html#signup"); // Redireciona para a seção de cadastro
-        exit();
-    } else {
-        // CPF não encontrado, exibir erro
-        $_SESSION['cpf_nao_encontrado'] = "CPF não encontrado. Por favor, complete o Cadastro Pessoal primeiro.";
-        header("Location: verificar_cpf_cadastro_cadastral.html");
-        exit();
+    // Validar e limpar o CPF (remova caracteres não numéricos)
+    $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+    // Conexão com o banco de dados (ajuste conforme sua configuração)
+    // Exemplo usando MySQLi:
+    $host = 'localhost';
+    $db   = 'project_servico'; // Nome do seu banco de dados
+    $user = 'root'; // Seu usuário do banco de dados
+    $pass = ''; // Sua senha do banco de dados
+    $charset = 'utf8mb4';
+
+    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
+
+    try {
+        $pdo = new PDO($dsn, $user, $pass, $options);
+
+        // Prepara a consulta SQL para verificar o CPF na tabela 'pessoa'
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM pessoa WHERE CPF = ?");
+        $stmt->execute([$cpf]);
+        $count = $stmt->fetchColumn();
+
+        if ($count > 0) {
+            $response['exists'] = true;
+        }
+
+    } catch (\PDOException $e) {
+        // Erro na conexão ou consulta ao banco de dados
+        error_log("Erro no banco de dados: " . $e->getMessage());
+        $response['error'] = 'Erro ao conectar ao banco de dados ou executar a consulta.';
     }
 } else {
-    // Acesso direto ao arquivo não permitido
-    header("Location: loginCadastro.html");
-    exit();
+    $response['error'] = 'CPF não fornecido.';
 }
+
+echo json_encode($response);
 ?>
