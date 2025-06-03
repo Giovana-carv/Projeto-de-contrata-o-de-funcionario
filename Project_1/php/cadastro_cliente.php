@@ -1,74 +1,94 @@
 <?php
-// Inclua seu arquivo de conexão com o banco de dados
-include 'conexao.php'; // Certifique-se de que este arquivo existe
+session_start();
+
+// Dados de conexão com o banco de dados
+$host = 'seu_host'; // Altere para o seu host do banco de dados
+$dbname = 'project_servico';
+$user = 'seu_usuario'; // Altere para o seu usuário do banco de dados
+$password = 'sua_senha'; // Altere para a sua senha do banco de dados
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    error_log("Erro na conexão com o banco de dados: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Erro na conexão com o banco de dados.']);
+    exit();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome_cad = $_POST['nome_cad'];
-    $email = $_POST['email'];
-    $senha_cad = password_hash($_POST['senha_cad'], PASSWORD_DEFAULT); // Hash da senha!
-    $cpf_cliente = $_POST['cpf_cliente']; // O CPF virá do campo readonly
-    $nome_endereco_cliente = $_POST['nome_endereco_cliente'];
-    $nome_endereco_cnpj = $_POST['nome_endereco_cnpj'];
+    $nome_cliente = $_POST['nome_cad'] ?? '';
+    $email_cliente = $_POST['email'] ?? '';
+    $senha_cliente = $_POST['senha_cad'] ?? '';
+    $cpf_cliente = $_POST['cpf_cliente'] ?? ''; // O CPF virá do campo readonly
+    $nome_endereco_cliente = isset($_POST['nome_endereco_cliente']) ? $_POST['nome_endereco_cliente'] : '';
+    $nome_endereco_cnpj = isset($_POST['nome_endereco_cnpj']) ? $_POST['nome_endereco_cnpj'] : '';
 
     // Validação básica
-    if (empty($nome_cad) || empty($email) || empty($senha_cad) || empty($cpf_cliente)) {
-        echo "Erro: Por favor, preencha todos os campos obrigatórios.";
-        exit;
+    if (empty($nome_cliente) || empty($email_cliente) || empty($senha_cliente) || empty($cpf_cliente) || strlen($cpf_cliente) !== 11) {
+        echo json_encode(['success' => false, 'message' => 'Dados inválidos ou CPF não informado.']);
+        exit();
     }
 
-    // Remover caracteres não numéricos do CPF
-    $cpf_cliente = preg_replace('/[^0-9]/', '', $cpf_cliente);
+    // Verifica se o CPF foi realmente verificado anteriormente na sessão
+    // Isso é uma camada extra de segurança, já que o CPF veio do input readonly
+    if (!isset($_SESSION['cpf_verificado']) || $_SESSION['cpf_verificado'] !== $cpf_cliente) {
+        // Se o CPF não foi verificado ou não corresponde, pode ser uma tentativa de manipulação
+        echo json_encode(['success' => false, 'message' => 'Erro: CPF não verificado ou inválido.']);
+        exit();
+    }
+
+    // Hash da senha para segurança
+    $senha_hashed = password_hash($senha_cliente, PASSWORD_DEFAULT);
 
     try {
-        // 1. Verificar se o CPF existe na tabela 'pessoa' e obter o IDpessoa_PK
-        $stmt_pessoa = $pdo->prepare("SELECT IDpessoa_PK FROM pessoa WHERE CPF = ?");
-        $stmt_pessoa->execute([$cpf_cliente]);
-        $pessoa = $stmt_pessoa->fetch(PDO::FETCH_ASSOC);
+        // Primeiro, obtemos o ID da pessoa com base no CPF (se já existir)
+        $stmt_get_pessoa_id = $pdo->prepare("SELECT IDpessoa FROM pessoa WHERE CPF = :cpf");
+        $stmt_get_pessoa_id->bindParam(':cpf', $cpf_cliente);
+        $stmt_get_pessoa_id->execute();
+        $pessoa_id = $stmt_get_pessoa_id->fetchColumn();
 
-        if (!$pessoa) {
-            echo "Erro: CPF não encontrado na base de dados de pessoas. Por favor, cadastre-se primeiro como pessoa.";
-            exit;
+        if (!$pessoa_id) {
+            // Se a pessoa não existir (o que não deveria acontecer se a lógica de verificação estiver correta),
+            // podemos inserir a pessoa aqui ou retornar um erro.
+            // Para simplificar, assumimos que a pessoa já foi criada via "Cadastro Pessoal" ou existe.
+            echo json_encode(['success' => false, 'message' => 'Pessoa com este CPF não encontrada no sistema.']);
+            exit();
         }
-        $idPessoaFK = $pessoa['IDpessoa_PK'];
 
-        // 2. Inserir na tabela cliente
-        // Cuidado: a estrutura da sua tabela cliente no SQL tinha 'CPF_pessoa INT',
-        // mas deveria ser 'CPF_pessoa VARCHAR(11)' se você quer usar o CPF diretamente
-        // como FK, ou 'IDpessoa_FK INT' se quiser usar o IDpessoa_PK.
-        // Considerando que você tem 'FOREIGN KEY (CPF_pessoa) REFERENCES pessoa(CPF)',
-        // vou assumir que 'CPF_pessoa' na tabela 'cliente' deve ser o CPF String.
-        // SE você quiser usar o IDpessoa_PK como FK, mude sua tabela cliente e o código aqui.
-        // A melhor prática é usar IDpessoa_PK como FK em 'cliente'.
-        // Se sua tabela 'cliente' tem 'CPF_pessoa', e você quer usar o CPF string como FK,
-        // então o campo CPF da tabela 'pessoa' PRECISA ser uma chave primária ou ter um índice único.
+        $sql_cliente = "INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, CPF_pessoa)
+                        VALUES (:nome, :email, :senha, :cpf)";
+        $stmt_cliente = $pdo->prepare($sql_cliente);
+        $stmt_cliente->bindParam(':nome', $nome_cliente);
+        $stmt_cliente->bindParam(':email', $email_cliente);
+        $stmt_cliente->bindParam(':senha', $senha_hashed); // Salva a senha hashed
+        $stmt_cliente->bindParam(':cpf', $cpf_cliente); // Usar o CPF diretamente
 
-        // Vamos usar o IDpessoa_PK como FK, que é a melhor prática.
-        // Se sua tabela cliente não tiver IDpessoa_FK, adicione:
-        // ALTER TABLE cliente ADD COLUMN IDpessoa_FK INT;
-        // ALTER TABLE cliente ADD CONSTRAINT fk_cliente_pessoa FOREIGN KEY (IDpessoa_FK) REFERENCES pessoa(IDpessoa_PK);
-        // E remova CPF_pessoa se não for usá-lo como FK.
+        if ($stmt_cliente->execute()) {
+            $cliente_id = $pdo->lastInsertId();
+            $sql_endereco = "INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj)
+                             VALUES (:cliente_id, :endereco_cliente, :endereco_cnpj)";
+            $stmt_endereco = $pdo->prepare($sql_endereco);
+            $stmt_endereco->bindParam(':cliente_id', $cliente_id);
+            $stmt_endereco->bindParam(':endereco_cliente', $nome_endereco_cliente);
+            $stmt_endereco->bindParam(':endereco_cnpj', $nome_endereco_cnpj);
 
-        // Inserir na tabela cliente (assumindo que você adicionou IDpessoa_FK em cliente)
-        $stmt_cliente = $pdo->prepare("INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, IDpessoa_FK) VALUES (?, ?, ?, ?)");
-        if ($stmt_cliente->execute([$nome_cad, $email, $senha_cad, $idPessoaFK])) {
-            $last_cliente_id = $pdo->lastInsertId();
-
-            // 3. Inserir na tabela endereco
-            if (!empty($nome_endereco_cliente) || !empty($nome_endereco_cnpj)) {
-                $stmt_endereco = $pdo->prepare("INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj) VALUES (?, ?, ?)");
-                $stmt_endereco->execute([$last_cliente_id, $nome_endereco_cliente, $nome_endereco_cnpj]);
+            if ($stmt_endereco->execute()) {
+                // Limpar a sessão após o cadastro bem-sucedido
+                unset($_SESSION['cpf_verificado']);
+                unset($_SESSION['pessoa_cpf']);
+                echo json_encode(['success' => true, 'message' => 'Cadastro cadastral realizado com sucesso!']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar os endereços.']);
             }
-            echo "Cadastro cadastral realizado com sucesso!";
-            // Redirecionar ou mostrar mensagem de sucesso
-            // header('Location: ../loginCadastro.html?cadastro=sucesso'); // Exemplo
         } else {
-            echo "Erro ao cadastrar cliente.";
+            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar os dados do cliente.']);
         }
-
     } catch (PDOException $e) {
-        echo "Erro: " . $e->getMessage();
+        error_log("Erro no cadastro cadastral: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Erro interno ao cadastrar.']);
     }
 } else {
-    echo "Método de requisição inválido.";
+    echo json_encode(['success' => false, 'message' => 'Método de requisição inválido.']);
 }
 ?>

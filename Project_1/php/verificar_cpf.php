@@ -1,57 +1,58 @@
 <?php
-header('Content-Type: application/json');
+session_start();
 
-// Inclua seu arquivo de conexão com o banco de dados aqui
-// Exemplo:
-include 'conexao.php'; // Certifique-se de que este arquivo existe e faz a conexão com seu banco de dados
+// Dados de conexão com o banco de dados
+$host = 'seu_host'; // Altere para o seu host do banco de dados
+$dbname = 'project_servico';
+$user = 'seu_usuario'; // Altere para o seu usuário do banco de dados
+$password = 'sua_senha'; // Altere para a sua senha do banco de dados
 
-$response = ['exists' => false];
-
-// Pega o JSON enviado pelo JavaScript
-$json_data = file_get_contents('php://input');
-$data = json_decode($json_data, true);
-
-if (isset($data['cpf'])) {
-    $cpf = $data['cpf'];
-
-    // Validar e limpar o CPF (remova caracteres não numéricos)
-    $cpf = preg_replace('/[^0-9]/', '', $cpf);
-
-    // Conexão com o banco de dados (ajuste conforme sua configuração)
-    // Exemplo usando MySQLi:
-    $host = 'localhost';
-    $db   = 'project_servico'; // Nome do seu banco de dados
-    $user = 'root'; // Seu usuário do banco de dados
-    $pass = ''; // Sua senha do banco de dados
-    $charset = 'utf8mb4';
-
-    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-    $options = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ];
-
-    try {
-        $pdo = new PDO($dsn, $user, $pass, $options);
-
-        // Prepara a consulta SQL para verificar o CPF na tabela 'pessoa'
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM pessoa WHERE CPF = ?");
-        $stmt->execute([$cpf]);
-        $count = $stmt->fetchColumn();
-
-        if ($count > 0) {
-            $response['exists'] = true;
-        }
-
-    } catch (\PDOException $e) {
-        // Erro na conexão ou consulta ao banco de dados
-        error_log("Erro no banco de dados: " . $e->getMessage());
-        $response['error'] = 'Erro ao conectar ao banco de dados ou executar a consulta.';
-    }
-} else {
-    $response['error'] = 'CPF não fornecido.';
+// Configuração da conexão com o banco de dados
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    // Em um ambiente de produção, registre o erro em vez de exibi-lo diretamente
+    error_log("Erro na conexão com o banco de dados: " . $e->getMessage());
+    echo json_encode(['exists' => false, 'error' => 'Erro interno do servidor.']);
+    exit();
 }
 
-echo json_encode($response);
+// Verifica se a requisição é POST e se o CPF foi enviado
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cpf'])) {
+    $cpf = $_POST['cpf'];
+
+    // Remove caracteres não numéricos do CPF
+    $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+    // Validação básica do CPF (pode ser aprimorada com um validador de CPF mais robusto)
+    if (strlen($cpf) !== 11) {
+        echo json_encode(['exists' => false, 'error' => 'CPF inválido.']);
+        exit();
+    }
+
+    try {
+        // Prepara a consulta para verificar se o CPF existe na tabela 'pessoa'
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM pessoa WHERE CPF = :cpf");
+        $stmt->bindParam(':cpf', $cpf);
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+
+        // Se o CPF existir, retorna true, caso contrário, false
+        if ($count > 0) {
+            $_SESSION['cpf_verificado'] = $cpf; // Armazena o CPF na sessão
+            echo json_encode(['exists' => true, 'cpf' => $cpf]);
+        } else {
+            $_SESSION['pessoa_cpf'] = $cpf; // Armazena o CPF na sessão para novo cadastro
+            echo json_encode(['exists' => false, 'cpf' => $cpf]);
+        }
+    } catch (PDOException $e) {
+        // Em caso de erro na consulta SQL
+        error_log("Erro na consulta SQL: " . $e->getMessage());
+        echo json_encode(['exists' => false, 'error' => 'Erro ao consultar o banco de dados.']);
+    }
+} else {
+    // Se a requisição não for POST ou o CPF não foi enviado
+    echo json_encode(['exists' => false, 'error' => 'Requisição inválida.']);
+}
 ?>
