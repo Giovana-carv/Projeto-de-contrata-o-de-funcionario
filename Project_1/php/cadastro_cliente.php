@@ -1,15 +1,18 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['pessoa_id'])) {
-    die("Erro: ID da pessoa não encontrado.");
+    $_SESSION['cadastro_cadastral_erro'] = "Erro: ID da pessoa não encontrado.";
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit();
 }
 $pessoa_id_fk = $_SESSION['pessoa_id'];
 
 // Dados de conexão com o banco de dados
-$host = 'localhost'; // Endereço do servidor MySQL
-$dbname = 'project_servico'; // Nome do banco de dados do SQL
-$user = 'root';
-$password = '';
+$host = 'seu_host';
+$dbname = 'project_servico';
+$user = 'seu_usuario';
+$password = 'sua_senha';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
@@ -21,24 +24,20 @@ try {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome_cliente = $_POST['nome_cad'];
     $email_cliente = $_POST['email'];
-    $senha_cliente = $_POST['senha_cad']; // Também é recomendável hashear esta senha
-    $nome_endereco_cliente = isset($_POST['nome_endereco_cliente']) ? $_POST['nome_endereco_cliente'] : '';
+    $senha_cliente = $_POST['senha_cad'];
+    $nome_endereco_cliente = isset($_POST['nome_endereco_pessoa']) ? $_POST['nome_endereco_pessoa'] : '';
     $nome_endereco_cnpj = isset($_POST['nome_endereco_cnpj']) ? $_POST['nome_endereco_cnpj'] : '';
 
-    // Inserir dados na tabela cliente
     $sql_cliente = "INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, CPF_pessoa) 
                     VALUES (:nome, :email, :senha, (SELECT CPF FROM pessoa WHERE IDpessoa_PK = :pessoa_id))";
     $stmt_cliente = $pdo->prepare($sql_cliente);
     $stmt_cliente->bindParam(':pessoa_id', $pessoa_id_fk);
     $stmt_cliente->bindParam(':nome', $nome_cliente);
     $stmt_cliente->bindParam(':email', $email_cliente);
-    $stmt_cliente->bindParam(':senha', $senha_cliente); // Em produção, use password_hash()
+    $stmt_cliente->bindParam(':senha', $senha_cliente);
 
     if ($stmt_cliente->execute()) {
-        $cliente_id = $pdo->lastInsertId(); // Obtém o IDcliente_PK inserido
-        echo "Dados do cliente cadastrados com sucesso. ID: " . $cliente_id . "<br>";
-
-        // Inserir dados na tabela endereco
+        $cliente_id = $pdo->lastInsertId();
         $sql_endereco = "INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj) 
                          VALUES (:cliente_id, :endereco_cliente, :endereco_cnpj)";
         $stmt_endereco = $pdo->prepare($sql_endereco);
@@ -47,13 +46,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_endereco->bindParam(':endereco_cnpj', $nome_endereco_cnpj);
 
         if ($stmt_endereco->execute()) {
-            echo "Endereços cadastrados com sucesso.";
+            $_SESSION['cadastro_cadastral_sucesso'] = true;
         } else {
-            echo "Erro ao cadastrar os endereços.";
+            $_SESSION['cadastro_cadastral_erro'] = "Erro ao cadastrar os endereços.";
         }
-
     } else {
-        echo "Erro ao cadastrar os dados do cliente.";
+        $_SESSION['cadastro_cadastral_erro'] = "Erro ao cadastrar os dados do cliente.";
     }
+
+    // Não redirecionamos, apenas voltamos para a página do formulário
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit();
 }
 ?>
