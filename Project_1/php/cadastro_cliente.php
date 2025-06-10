@@ -2,10 +2,10 @@
 session_start();
 
 // Dados de conexão com o banco de dados
-$host = 'seu_host'; // Altere para o seu host do banco de dados
+$host = 'localhost'; // Altere para o seu host do banco de dados
 $dbname = 'project_servico';
-$user = 'seu_usuario'; // Altere para o seu usuário do banco de dados
-$password = 'sua_senha'; // Altere para a sua senha do banco de dados
+$user = 'root'; // Altere para o seu usuário do banco de dados
+$password = ''; // Altere para a sua senha do banco de dados
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $password);
@@ -20,21 +20,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome_cliente = $_POST['nome_cad'] ?? '';
     $email_cliente = $_POST['email'] ?? '';
     $senha_cliente = $_POST['senha_cad'] ?? '';
-    $cpf_cliente = $_POST['cpf_cliente'] ?? ''; // O CPF virá do campo readonly
-    $nome_endereco_cliente = isset($_POST['nome_endereco_cliente']) ? $_POST['nome_endereco_cliente'] : '';
-    $nome_endereco_cnpj = isset($_POST['nome_endereco_cnpj']) ? $_POST['nome_endereco_cnpj'] : '';
+    // $cpf_cliente foi removido do formulário HTML, então não o esperamos mais aqui.
+    // Se o IDpessoa for necessário para a tabela cliente, ele precisaria ser obtido de outra forma,
+    // ou a coluna IDpessoa na tabela cliente deveria ser NULL.
 
-    // Validação básica
-    if (empty($nome_cliente) || empty($email_cliente) || empty($senha_cliente) || empty($cpf_cliente) || strlen($cpf_cliente) !== 11) {
-        echo json_encode(['success' => false, 'message' => 'Dados inválidos ou CPF não informado.']);
-        exit();
-    }
+    $nome_endereco_cliente = $_POST['nome_endereco_cliente'] ?? '';
+    $nome_endereco_cnpj = $_POST['nome_endereco_cnpj'] ?? '';
 
-    // Verifica se o CPF foi realmente verificado anteriormente na sessão
-    // Isso é uma camada extra de segurança, já que o CPF veio do input readonly
-    if (!isset($_SESSION['cpf_verificado']) || $_SESSION['cpf_verificado'] !== $cpf_cliente) {
-        // Se o CPF não foi verificado ou não corresponde, pode ser uma tentativa de manipulação
-        echo json_encode(['success' => false, 'message' => 'Erro: CPF não verificado ou inválido.']);
+    // Validação básica (sem o CPF)
+    if (empty($nome_cliente) || empty($email_cliente) || empty($senha_cliente)) {
+        echo json_encode(['success' => false, 'message' => 'Nome, E-mail e Senha são obrigatórios para o cadastro.']);
         exit();
     }
 
@@ -42,30 +37,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $senha_hashed = password_hash($senha_cliente, PASSWORD_DEFAULT);
 
     try {
-        // Primeiro, obtemos o ID da pessoa com base no CPF (se já existir)
-        $stmt_get_pessoa_id = $pdo->prepare("SELECT IDpessoa FROM pessoa WHERE CPF = :cpf");
-        $stmt_get_pessoa_id->bindParam(':cpf', $cpf_cliente);
-        $stmt_get_pessoa_id->execute();
-        $pessoa_id = $stmt_get_pessoa_id->fetchColumn();
-
-        if (!$pessoa_id) {
-            // Se a pessoa não existir (o que não deveria acontecer se a lógica de verificação estiver correta),
-            // podemos inserir a pessoa aqui ou retornar um erro.
-            // Para simplificar, assumimos que a pessoa já foi criada via "Cadastro Pessoal" ou existe.
-            echo json_encode(['success' => false, 'message' => 'Pessoa com este CPF não encontrada no sistema.']);
-            exit();
-        }
-
-        $sql_cliente = "INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente, CPF_pessoa)
-                        VALUES (:nome, :email, :senha, :cpf)";
+        // Inserir dados na tabela cliente
+        // Removido o campo 'CPF_pessoa' da inserção. Assumindo que IDpessoa é NULLABLE ou preenchido de outra forma.
+        // Se IDpessoa na tabela cliente não puder ser NULL, esta operação falhará.
+        $sql_cliente = "INSERT INTO cliente (nome_cliente, email_cliente, senha_cliente)
+                         VALUES (:nome, :email, :senha)";
         $stmt_cliente = $pdo->prepare($sql_cliente);
         $stmt_cliente->bindParam(':nome', $nome_cliente);
         $stmt_cliente->bindParam(':email', $email_cliente);
         $stmt_cliente->bindParam(':senha', $senha_hashed); // Salva a senha hashed
-        $stmt_cliente->bindParam(':cpf', $cpf_cliente); // Usar o CPF diretamente
 
         if ($stmt_cliente->execute()) {
-            $cliente_id = $pdo->lastInsertId();
+            $cliente_id = $pdo->lastInsertId(); // Pega o ID do cliente recém-inserido
+
+            // Inserir dados na tabela endereco
             $sql_endereco = "INSERT INTO endereco (IDcliente_FK, nome_endereco_cliente, nome_endereco_cnpj)
                              VALUES (:cliente_id, :endereco_cliente, :endereco_cnpj)";
             $stmt_endereco = $pdo->prepare($sql_endereco);
@@ -74,9 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_endereco->bindParam(':endereco_cnpj', $nome_endereco_cnpj);
 
             if ($stmt_endereco->execute()) {
-                // Limpar a sessão após o cadastro bem-sucedido
-                unset($_SESSION['cpf_verificado']);
-                unset($_SESSION['pessoa_cpf']);
+                // Não há $_SESSION['cpf_verificado'] para limpar, pois a verificação de CPF foi removida.
                 echo json_encode(['success' => true, 'message' => 'Cadastro cadastral realizado com sucesso!']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar os endereços.']);

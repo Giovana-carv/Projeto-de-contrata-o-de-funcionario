@@ -34,7 +34,9 @@
             margin-bottom: 10px;
         }
 
-        .cadastro-form input {
+        .cadastro-form input,
+        .cadastro-form textarea,
+        .cadastro-form select { /* Adicionado textarea e select para estilos */
             width: 100%;
             padding: 12px 15px;
             margin: 8px 0;
@@ -111,6 +113,16 @@
         .login-options button.active {
             background-color: #eee;
         }
+        
+        /* Estilos adicionais para layout do formulário de funcionário */
+        .cadastro-form label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-align: left; /* Alinha o label à esquerda */
+            width: 100%; /* Ocupa a largura total */
+        }
     </style>
 </head>
 <body>
@@ -121,6 +133,7 @@
             <div class="signup-options" id="signupOptions">
                 <button id="mostrarCadastroPessoal">Cadastro Pessoal</button>
                 <button id="mostrarCadastroCadastral">Cadastro Cadastral</button>
+                <button id="mostrarCadastroFuncionario">Cadastro de Funcionário</button>
             </div>
 
             <div id="cadastroPessoalForm" class="cadastro-form">
@@ -128,7 +141,6 @@
                 <form id="formCadastroPessoal" action="../php/cadastro_pessoal.php" method="POST" onsubmit="exibirAlertaCadastroPessoal(event)">
                     <input type="text" name="nome" placeholder="Nome Completo" required />
                     <input type="password" name="senha_pessoa" placeholder="Senha" required />
-                    <input type="text" name="CPF" id="cpfPessoal" placeholder="CPF (somente números)" maxlength="11" pattern="\d{11}" title="Por favor, insira um CPF válido com 11 dígitos (somente números)." required />
                     <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
                     <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
@@ -138,9 +150,9 @@
             <div id="cadastroCadastralForm" class="cadastro-form">
                 <h3>Informações Cadastrais</h3>
                 <form id="formCadastroCadastral" action="../php/cadastro_cliente.php" method="POST" onsubmit="exibirAlertaCadastroCadastral(event)">
-                    <input type="text" name="nome_cad" placeholder="Nome" required />
-                    <input type="email" name="email" placeholder="E-mail" required />
-                    <input type="password" name="senha_cad" placeholder="Senha" required />
+                    <input type="text" name="nome_cliente" placeholder="Nome" required />
+                    <input type="email" name="email_cliente" placeholder="E-mail" required />
+                    <input type="password" name="senha_cliente" placeholder="Senha" required />
                     <h4>Endereço</h4>
                     <div class="endereco-selector">
                         <button type="button" id="mostrarEnderecoCliente" class="active">Cliente</button>
@@ -154,6 +166,17 @@
                     <button type="button" id="voltarCadastroCadastral">Voltar</button>
                 </form>
             </div>
+
+            <div id="cadastroFuncionarioForm" class="cadastro-form">
+                <h3>Cadastro de Funcionário</h3>
+                <form id="formCadastroFuncionario" action="../php/cadastro_funcionario.php" method="POST" onsubmit="exibirAlertaCadastroFuncionario(event)">
+                    <input type="text" name="nome_funcionario" placeholder="Nome Completo" required />
+                    <input type="password" name="senha_funcionario" placeholder="Senha" required />
+                    <input type="text" name="categoria" placeholder="Categoria" required /> 
+                    <button type="submit">Cadastrar-se</button>
+                    <button type="button" id="voltarCadastroFuncionario">Voltar</button>
+                </form>
+            </div>
         </div>
 
         <div class="form-container sign-in-container">
@@ -162,12 +185,10 @@
                 <input type="email" name="email" placeholder="E-mail" required>
                 <input type="password" name="senha" placeholder="Senha" required>
                 <div class="login-options">
-                    <button type="button" id="loginComCPF" class="active">CPF</button>
                     <button type="button" id="loginComCNPJ">CNPJ</button>
                 </div>
                 <div id="loginInputs">
-                    <input type="text" name="cpf_login" placeholder="CPF" style="display: block;" id="cpfLoginInput">
-                    <input type="text" name="cnpj_login" placeholder="CNPJ" style="display: none;" id="cnpjLoginInput">
+                    <input type="text" name="cnpj_login" placeholder="CNPJ" style="display: block;" id="cnpjLoginInput">
                 </div>
                 <a href="#">Esqueceu sua senha?</a>
                 <button type="submit">Login</button>
@@ -200,6 +221,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+    <div id="alertaCadastroFuncionario" class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; display: none;">
+        Cadastro de funcionário concluído com sucesso!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script>
     const signUpButton = document.getElementById('signUp');
@@ -209,13 +235,16 @@
     const signupOptions = document.getElementById('signupOptions');
     const cadastroPessoalForm = document.getElementById('cadastroPessoalForm');
     const cadastroCadastralForm = document.getElementById('cadastroCadastralForm');
+    const cadastroFuncionarioForm = document.getElementById('cadastroFuncionarioForm'); 
+    
     const alertaCadastroPessoal = document.getElementById('alertaCadastroPessoal');
     const alertaCadastroCadastral = document.getElementById('alertaCadastroCadastral');
+    const alertaCadastroFuncionario = document.getElementById('alertaCadastroFuncionario'); 
 
     // Elementos do Cadastro Pessoal
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
     const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
-    const cpfPessoalInput = document.getElementById('cpfPessoal');
+    // const cpfPessoalInput = document.getElementById('cpfPessoal'); // Removido
 
     // Elementos do Cadastro Cadastral
     const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
@@ -224,15 +253,18 @@
     const enderecoCNPJInput = document.getElementById('enderecoCNPJInput');
     const mostrarEnderecoClienteBtn = document.getElementById('mostrarEnderecoCliente');
     const mostrarEnderecoCNPJBtn = document.getElementById('mostrarEnderecoCNPJ');
-    // const cpfCadastralInput = document.getElementById('cpfCadastral'); // Removido
+
+    // Elementos do Cadastro de Funcionário
+    const mostrarCadastroFuncionarioBtn = document.getElementById('mostrarCadastroFuncionario');
+    const voltarCadastroFuncionarioBtn = document.getElementById('voltarCadastroFuncionario');
 
     signUpButton.addEventListener('click', () => {
         container.classList.add("right-panel-active");
-        signupOptions.style.display = 'flex'; // Mostra as opções de cadastro diretamente
+        signupOptions.style.display = 'flex'; 
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
-        cpfPessoalInput.value = ''; // Limpa o campo CPF no cadastro pessoal, se necessário
-        // cpfCadastralInput.value = ''; // Removido, pois não há mais campo de CPF no cadastro cadastral
+        cadastroFuncionarioForm.style.display = 'none';
+        // cpfPessoalInput.value = ''; // Removido
     });
 
     signInButton.addEventListener('click', () => {
@@ -240,6 +272,7 @@
         signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
+        cadastroFuncionarioForm.style.display = 'none';
     });
 
     // Mostrar formulário de Cadastro Pessoal
@@ -247,6 +280,7 @@
         signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'block';
         cadastroCadastralForm.style.display = 'none';
+        cadastroFuncionarioForm.style.display = 'none';
     });
 
     // Mostrar formulário de Cadastro Cadastral
@@ -254,22 +288,40 @@
         signupOptions.style.display = 'none';
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'block';
+        cadastroFuncionarioForm.style.display = 'none';
+    });
+
+    // Mostrar formulário de Cadastro de Funcionário
+    mostrarCadastroFuncionarioBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'none';
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
+        cadastroFuncionarioForm.style.display = 'block';
     });
 
     // Voltar para a seleção de cadastro (do Pessoal)
     voltarCadastroPessoalBtn.addEventListener('click', () => {
-        signupOptions.style.display = 'flex'; // Volta para as opções de cadastro
+        signupOptions.style.display = 'flex'; 
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
-        cpfPessoalInput.value = ''; // Limpa o campo CPF no cadastro pessoal
+        cadastroFuncionarioForm.style.display = 'none';
+        // cpfPessoalInput.value = ''; // Removido
     });
 
     // Voltar para a seleção de cadastro (do Cadastral)
     voltarCadastroCadastralBtn.addEventListener('click', () => {
-        signupOptions.style.display = 'flex'; // Volta para as opções de cadastro
+        signupOptions.style.display = 'flex'; 
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
-        // cpfCadastralInput.value = ''; // Removido, pois não há mais campo de CPF no cadastro cadastral
+        cadastroFuncionarioForm.style.display = 'none';
+    });
+
+    // Voltar para a seleção de cadastro (do Funcionário)
+    voltarCadastroFuncionarioBtn.addEventListener('click', () => {
+        signupOptions.style.display = 'flex'; 
+        cadastroPessoalForm.style.display = 'none';
+        cadastroCadastralForm.style.display = 'none';
+        cadastroFuncionarioForm.style.display = 'none';
     });
 
     // Lógica para alternar entre os campos de endereço (Cadastro Cadastral)
@@ -292,36 +344,55 @@
     }
 
     // Login
-    const loginComCPFBtn = document.getElementById('loginComCPF');
+    // const loginComCPFBtn = document.getElementById('loginComCPF'); // Removido
     const loginComCNPJBtn = document.getElementById('loginComCNPJ');
-    const cpfLoginInput = document.getElementById('cpfLoginInput');
+    // const cpfLoginInput = document.getElementById('cpfLoginInput'); // Removido
     const cnpjLoginInput = document.getElementById('cnpjLoginInput');
 
-    loginComCPFBtn.addEventListener('click', () => {
-        cpfLoginInput.style.display = 'block';
-        cnpjLoginInput.style.display = 'none';
-        loginComCPFBtn.classList.add('active');
-        loginComCNPJBtn.classList.remove('active');
-    });
+    // Remove the CPF login option's active state handling.
+    // If you only have CNPJ, you can make the CNPJ button active by default or remove it entirely.
+    // For now, I'll make the CNPJ button active by default in the script.
+    
+    // Remove the CPF option if it's the only one left in the login-options div.
+    // Otherwise, ensure CNPJ is the default.
+    const loginOptionsDiv = document.querySelector('.login-options');
+    if (loginOptionsDiv) {
+        const cpfButton = document.getElementById('loginComCPF');
+        if (cpfButton) {
+            cpfButton.remove();
+        }
+        // Ensure CNPJ button is visible and active if it's the only option.
+        if (loginComCNPJBtn) {
+            loginComCNPJBtn.classList.add('active');
+            cnpjLoginInput.style.display = 'block'; // Make CNPJ input visible by default
+        }
+    }
 
-    loginComCNPJBtn.addEventListener('click', () => {
-        cpfLoginInput.style.display = 'none';
-        cnpjLoginInput.style.display = 'block';
-        loginComCPFBtn.classList.remove('active');
-        loginComCNPJBtn.classList.add('active');
-    });
 
+    // The event listener for loginComCPFBtn is removed.
+    // loginComCPFBtn.addEventListener('click', () => { ... });
+
+    if (loginComCNPJBtn) { // Check if the button exists before adding listener
+        loginComCNPJBtn.addEventListener('click', () => {
+            // Since CPF is removed, CNPJ is now the only direct option from the button.
+            // You might even remove the "login-options" div if CNPJ is the only method.
+            cnpjLoginInput.style.display = 'block';
+            loginComCNPJBtn.classList.add('active');
+        });
+    }
+
+
+    // Funções para exibir alertas de cadastro
     function exibirAlertaCadastroPessoal(event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
+        event.preventDefault(); 
         alertaCadastroPessoal.style.display = 'block';
-        // Submete o formulário via AJAX para que o PHP possa processar e manter a sessão
         const form = document.getElementById('formCadastroPessoal');
         const formData = new FormData(form);
         fetch(form.action, {
             method: form.method,
             body: formData
         })
-        .then(response => response.json()) // Assumimos que o PHP retornará JSON
+        .then(response => response.json()) 
         .then(data => {
             if (data.success) {
                 console.log("Cadastro pessoal enviado com sucesso via AJAX!");
@@ -335,25 +406,25 @@
 
         setTimeout(() => {
             alertaCadastroPessoal.style.display = 'none';
-            container.classList.remove("right-panel-active"); // Volta para a tela de login
+            container.classList.remove("right-panel-active"); 
             signupOptions.style.display = 'none';
             cadastroPessoalForm.style.display = 'none';
             cadastroCadastralForm.style.display = 'none';
-            cpfPessoalInput.value = ''; // Limpa o campo CPF
+            cadastroFuncionarioForm.style.display = 'none';
+            // cpfPessoalInput.value = ''; // Removido
         }, 3000);
     }
 
     function exibirAlertaCadastroCadastral(event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
+        event.preventDefault(); 
         alertaCadastroCadastral.style.display = 'block';
-        // Submete o formulário via AJAX para que o PHP possa processar e manter a sessão
         const form = document.getElementById('formCadastroCadastral');
         const formData = new FormData(form);
         fetch(form.action, {
             method: form.method,
             body: formData
         })
-        .then(response => response.json()) // Assumimos que o PHP retornará JSON
+        .then(response => response.json()) 
         .then(data => {
             if (data.success) {
                 console.log("Cadastro cadastral enviado com sucesso via AJAX!");
@@ -367,11 +438,42 @@
 
         setTimeout(() => {
             alertaCadastroCadastral.style.display = 'none';
-            container.classList.remove("right-panel-active"); // Volta para a tela de login
+            container.classList.remove("right-panel-active"); 
             signupOptions.style.display = 'none';
             cadastroPessoalForm.style.display = 'none';
             cadastroCadastralForm.style.display = 'none';
-            // cpfCadastralInput.value = ''; // Removido
+            cadastroFuncionarioForm.style.display = 'none';
+        }, 3000);
+    }
+
+    function exibirAlertaCadastroFuncionario(event) { 
+        event.preventDefault(); 
+        alertaCadastroFuncionario.style.display = 'block';
+        const form = document.getElementById('formCadastroFuncionario');
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: form.method,
+            body: formData
+        })
+        .then(response => response.json()) 
+        .then(data => {
+            if (data.success) {
+                console.log("Cadastro de funcionário enviado com sucesso via AJAX!");
+            } else {
+                console.error("Erro no cadastro de funcionário via AJAX:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Erro na requisição AJAX:", error);
+        });
+
+        setTimeout(() => {
+            alertaCadastroFuncionario.style.display = 'none';
+            container.classList.remove("right-panel-active"); 
+            signupOptions.style.display = 'none';
+            cadastroPessoalForm.style.display = 'none';
+            cadastroCadastralForm.style.display = 'none';
+            cadastroFuncionarioForm.style.display = 'none';
         }, 3000);
     }
 </script>
