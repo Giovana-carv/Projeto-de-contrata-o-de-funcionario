@@ -94,7 +94,8 @@
             display: block;
         }
 
-        .login-options {
+        /* Removido .login-options para simplificar o login */
+        /* .login-options {
             display: flex;
             width: 100%;
             margin-bottom: 10px;
@@ -112,7 +113,7 @@
 
         .login-options button.active {
             background-color: #eee;
-        }
+        } */
         
         /* Estilos adicionais para layout do formulário de funcionário */
         .cadastro-form label {
@@ -141,6 +142,7 @@
                 <form id="formCadastroPessoal" action="../php/cadastro_pessoal.php" method="POST" onsubmit="exibirAlertaCadastroPessoal(event)">
                     <input type="text" name="nome" placeholder="Nome Completo" required />
                     <input type="password" name="senha_pessoa" placeholder="Senha" required />
+                    <input type="text" name="CPF" id="cpfPessoal" placeholder="CPF (somente números)" maxlength="11" pattern="\d{11}" title="Por favor, insira um CPF válido com 11 dígitos (somente números)." required />
                     <input type="text" name="cnpj" placeholder="CNPJ (Opcional)" />
                     <button type="submit" id="cadastrarPessoal" name="enviar">Cadastrar</button>
                     <button type="button" id="voltarCadastroPessoal">Voltar</button>
@@ -172,7 +174,7 @@
                 <form id="formCadastroFuncionario" action="../php/cadastro_funcionario.php" method="POST" onsubmit="exibirAlertaCadastroFuncionario(event)">
                     <input type="text" name="nome_funcionario" placeholder="Nome Completo" required />
                     <input type="password" name="senha_funcionario" placeholder="Senha" required />
-                    <input type="text" name="categoria" placeholder="Categoria" required /> 
+                    <input type="text" name="categoria" placeholder="Categoria" required />
                     <button type="submit">Cadastrar-se</button>
                     <button type="button" id="voltarCadastroFuncionario">Voltar</button>
                 </form>
@@ -184,12 +186,6 @@
                 <h1>Entrar</h1>
                 <input type="email" name="email" placeholder="E-mail" required>
                 <input type="password" name="senha" placeholder="Senha" required>
-                <div class="login-options">
-                    <button type="button" id="loginComCNPJ">CNPJ</button>
-                </div>
-                <div id="loginInputs">
-                    <input type="text" name="cnpj_login" placeholder="CNPJ" style="display: block;" id="cnpjLoginInput">
-                </div>
                 <a href="#">Esqueceu sua senha?</a>
                 <button type="submit">Login</button>
             </form>
@@ -244,7 +240,7 @@
     // Elementos do Cadastro Pessoal
     const voltarCadastroPessoalBtn = document.getElementById('voltarCadastroPessoal');
     const mostrarCadastroPessoalBtn = document.getElementById('mostrarCadastroPessoal');
-    // const cpfPessoalInput = document.getElementById('cpfPessoal'); // Removido
+    const cpfPessoalInput = document.getElementById('cpfPessoal');
 
     // Elementos do Cadastro Cadastral
     const mostrarCadastroCadastralBtn = document.getElementById('mostrarCadastroCadastral');
@@ -264,7 +260,7 @@
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
         cadastroFuncionarioForm.style.display = 'none';
-        // cpfPessoalInput.value = ''; // Removido
+        cpfPessoalInput.value = ''; 
     });
 
     signInButton.addEventListener('click', () => {
@@ -305,7 +301,7 @@
         cadastroPessoalForm.style.display = 'none';
         cadastroCadastralForm.style.display = 'none';
         cadastroFuncionarioForm.style.display = 'none';
-        // cpfPessoalInput.value = ''; // Removido
+        cpfPessoalInput.value = ''; 
     });
 
     // Voltar para a seleção de cadastro (do Cadastral)
@@ -343,43 +339,14 @@
         });
     }
 
-    // Login
+    // A lógica de alternância para login por CPF/CNPJ foi removida
     // const loginComCPFBtn = document.getElementById('loginComCPF'); // Removido
-    const loginComCNPJBtn = document.getElementById('loginComCNPJ');
+    // const loginComCNPJBtn = document.getElementById('loginComCNPJ'); // Removido
     // const cpfLoginInput = document.getElementById('cpfLoginInput'); // Removido
-    const cnpjLoginInput = document.getElementById('cnpjLoginInput');
+    // const cnpjLoginInput = document.getElementById('cnpjLoginInput'); // Removido
 
-    // Remove the CPF login option's active state handling.
-    // If you only have CNPJ, you can make the CNPJ button active by default or remove it entirely.
-    // For now, I'll make the CNPJ button active by default in the script.
-    
-    // Remove the CPF option if it's the only one left in the login-options div.
-    // Otherwise, ensure CNPJ is the default.
-    const loginOptionsDiv = document.querySelector('.login-options');
-    if (loginOptionsDiv) {
-        const cpfButton = document.getElementById('loginComCPF');
-        if (cpfButton) {
-            cpfButton.remove();
-        }
-        // Ensure CNPJ button is visible and active if it's the only option.
-        if (loginComCNPJBtn) {
-            loginComCNPJBtn.classList.add('active');
-            cnpjLoginInput.style.display = 'block'; // Make CNPJ input visible by default
-        }
-    }
-
-
-    // The event listener for loginComCPFBtn is removed.
-    // loginComCPFBtn.addEventListener('click', () => { ... });
-
-    if (loginComCNPJBtn) { // Check if the button exists before adding listener
-        loginComCNPJBtn.addEventListener('click', () => {
-            // Since CPF is removed, CNPJ is now the only direct option from the button.
-            // You might even remove the "login-options" div if CNPJ is the only method.
-            cnpjLoginInput.style.display = 'block';
-            loginComCNPJBtn.classList.add('active');
-        });
-    }
+    // loginComCPFBtn.addEventListener('click', () => { ... }); // Removido
+    // loginComCNPJBtn.addEventListener('click', () => { ... }); // Removido
 
 
     // Funções para exibir alertas de cadastro
@@ -411,7 +378,7 @@
             cadastroPessoalForm.style.display = 'none';
             cadastroCadastralForm.style.display = 'none';
             cadastroFuncionarioForm.style.display = 'none';
-            // cpfPessoalInput.value = ''; // Removido
+            cpfPessoalInput.value = ''; 
         }, 3000);
     }
 
@@ -476,6 +443,7 @@
             cadastroFuncionarioForm.style.display = 'none';
         }, 3000);
     }
+
 </script>
 </body>
 </html>
