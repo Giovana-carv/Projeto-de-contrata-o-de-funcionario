@@ -52,6 +52,6 @@ if ($result_funcionario) { // Se encontrou um funcionário com o nome
 
 // --- Se nenhuma das tentativas de login teve sucesso ---
 echo "E-mail/Nome ou senha inválidos.";
-echo "<a href = '../html/loginCadastro.html'> Voltar </a>";
+echo "<a href = '../html/loginCadastro_3.html'> Voltar </a>";
 
 ?>
