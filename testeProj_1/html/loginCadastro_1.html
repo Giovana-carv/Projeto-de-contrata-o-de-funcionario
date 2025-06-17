@@ -60,7 +60,7 @@
 <body>
     <div class="container" id="container">
         <div class="form-container sign-up-container">
-            <form action="../php/cadastro.php" method="POST" enctype="multipart/form-data">
+            <form id="cadastroForm" method="POST" enctype="multipart/form-data">
                 <h2>Crie uma Conta:</h2>
 
                 <div class="type-selection-buttons">
@@ -155,6 +155,8 @@
         const camposClienteFuncionario = document.getElementById('camposClienteFuncionario');
         const certificadoArea = document.getElementById('certificado-area');
         const hiddenTipoInput = document.getElementById('hiddenTipo');
+        // Adicione uma referência ao formulário
+        const cadastroForm = document.getElementById('cadastroForm');
 
         function updateFormFields(selectedMainType) {
             // Oculta todos os campos opcionais e remove 'required'
@@ -184,14 +186,20 @@
                 selectUsuarioComumDiv.classList.remove('hidden-field');
                 tipoUsuarioComumSelect.setAttribute('required', true); // Torna o select obrigatório
 
+                // Define o action do formulário para o cadastro comum
+                cadastroForm.action = "../php/cadastro.php";
+
                 // Chama a função para lidar com a seleção Cliente/Funcionário
                 handleUsuarioComumType(tipoUsuarioComumSelect.value);
 
             } else if (selectedMainType === 'pessoal') {
-                selectUsuarioComumDiv.classList.add('hidden-field');
+                selectUsuarioComumDiv.add('hidden-field');
                 camposPessoal.classList.remove('hidden-field');
                 camposPessoal.querySelector('input[name="cpf_pessoal"]').setAttribute('required', true);
                 camposPessoal.querySelector('input[name="senha_pessoal"]').setAttribute('required', true);
+
+                // Define o action do formulário para o cadastro pessoal
+                cadastroForm.action = "../php/cadastro_pessoa.php";
 
                 hiddenTipoInput.value = 'pessoal'; // Define o tipo para o PHP
             }
