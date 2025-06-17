@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Login e Cadastro </title>
+    <link rel="stylesheet" href="../css/loginCadastro.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        /* Adicione este CSS ao seu arquivo loginCadastro.css ou dentro desta tag <style> */
+        /* Estilo para os botões de seleção de tipo de usuário */
+        .type-selection-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Espaçamento entre os botões */
+            margin-bottom: 20px; /* Margem abaixo dos botões */
+        }
+
+        .type-selection-buttons button,
+        .type-selection-buttons select { /* Estilizar também o select */
+            background-color: #eee; /* Cor de fundo padrão */
+            color: #333; /* Cor do texto padrão */
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            font-weight: bold;
+            flex: 1; /* Para que os botões/select ocupem o espaço disponível igualmente */
+        }
+
+        .type-selection-buttons button.active,
+        .type-selection-buttons select.active {
+            background-color: #4CAF50; /* Cor de fundo para o botão/select ativo (exemplo: verde) */
+            color: white; /* Cor do texto para o botão/select ativo */
+            border-color: #4CAF50;
+        }
+
+        .type-selection-buttons button:hover:not(.active),
+        .type-selection-buttons select:hover:not(.active) {
+            background-color: #ddd; /* Cor de fundo ao passar o mouse */
+        }
+
+        /* Estilos adicionais para campos ocultos, se necessário */
+        .hidden-field {
+            display: none !important;
+        }
+
+        /* Ajuste para o select dentro do formulário */
+        .form-container form select {
+            width: calc(100% - 20px); /* Ajusta largura considerando padding */
+            margin: 8px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Inclui padding e border na largura */
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="form-container sign-up-container">
+            <form action="../php/cadastro.php" method="POST" enctype="multipart/form-data">
+                <h2>Crie uma Conta:</h2>
+
+                <div class="type-selection-buttons">
+                    <button type="button" class="type-button active" data-type="usuario_comum">Usuário Comum</button>
+                    <button type="button" class="type-button" data-type="pessoal">Pessoal</button>
+                </div>
+
+                <div id="selectUsuarioComum" style="display: block;">
+                    <span>Selecione o tipo:</span>
+                    <select name="tipo_usuario_comum" id="tipoUsuarioComumSelect" required>
+                        <option value="cliente">Cliente</option>
+                        <option value="funcionario">Funcionário</option>
+                    </select>
+                </div>
+
+                <div id="camposFuncionario" class="hidden-field">
+                    <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+                    <label for="comentario"> Deixe um comentário: </label>
+                    <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
+                </div>
+
+                <div id="camposPessoal" class="hidden-field">
+                    <input type="text" name="cpf_pessoal" placeholder="CPF" maxlength="11"><br>
+                    <input type="password" name="senha_pessoal" placeholder="Senha Pessoal" required><br>
+                </div>
+
+                <input type="text" name="nome" placeholder="Nome" required />
+
+                <div id="camposClienteFuncionario">
+                    <input type="email" name="email" placeholder="E-mail" />
+                    <input type="password" name="senha" placeholder="Senha" />
+                    <input type="text" name="endereco" placeholder="Endereço" />
+                    <label>Foto de Perfil</label>
+                    <input type="file" name="foto_perfil" accept="image/*" />
+                </div>
+
+                <div id="certificado-area" class="hidden-field">
+                    <label>Certificado (somente para funcionários)</label>
+                    <input type="file" name="certificado" accept="image/*" />
+                </div>
+
+                <input type="hidden" name="tipo" id="hiddenTipo" value="cliente">
+
+                <button type="submit">Cadastrar-se</button>
+            </form>
+        </div>
+        <div class="form-container sign-in-container">
+            <form action="../php/login.php" method="post">
+                <h1>Entrar</h1>
+                <input type="text" name="nome" placeholder="Nome" required>
+                <input type="password" name="senha" placeholder="Senha" required>
+                <a href="#">Esqueceu sua senha?</a>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Bem-vindo de volta!</h1>
+                    <p>Para se manter conectado, entre com suas credenciais</p>
+                    <button class="ghost" id="signIn">Entrar</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Seja Bem-vindo!</h1>
+                    <p>Insira seus dados e comece sua jornada conosco</p>
+                    <button class="ghost" id="signUp">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+
+        // --- Novas variáveis e funções para os botões de tipo de usuário ---
+        const typeButtons = document.querySelectorAll('.type-button');
+        const selectUsuarioComumDiv = document.getElementById('selectUsuarioComum');
+        const tipoUsuarioComumSelect = document.getElementById('tipoUsuarioComumSelect');
+        const camposFuncionario = document.getElementById('camposFuncionario');
+        const camposPessoal = document.getElementById('camposPessoal');
+        const camposClienteFuncionario = document.getElementById('camposClienteFuncionario');
+        const certificadoArea = document.getElementById('certificado-area');
+        const hiddenTipoInput = document.getElementById('hiddenTipo');
+
+        function updateFormFields(selectedMainType) {
+            // Oculta todos os campos opcionais e remove 'required'
+            camposFuncionario.classList.add('hidden-field');
+            camposPessoal.classList.add('hidden-field');
+            certificadoArea.classList.add('hidden-field');
+            camposClienteFuncionario.classList.add('hidden-field'); // Oculta por padrão e mostra conforme o tipo
+
+            // Gerencia o required para todos os inputs dentro dos grupos
+            const allInputs = document.querySelectorAll('.form-container form input, .form-container form textarea, .form-container form select');
+            allInputs.forEach(input => input.removeAttribute('required'));
+
+            // Adiciona 'required' apenas para o campo 'nome' que é sempre obrigatório
+            document.querySelector('input[name="nome"]').setAttribute('required', true);
+
+            // Atualiza o estado ativo dos botões principais
+            typeButtons.forEach(button => {
+                if (button.dataset.type === selectedMainType) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Lógica para exibir/ocultar seletor e campos com base no botão principal
+            if (selectedMainType === 'usuario_comum') {
+                selectUsuarioComumDiv.classList.remove('hidden-field');
+                tipoUsuarioComumSelect.setAttribute('required', true); // Torna o select obrigatório
+
+                // Chama a função para lidar com a seleção Cliente/Funcionário
+                handleUsuarioComumType(tipoUsuarioComumSelect.value);
+
+            } else if (selectedMainType === 'pessoal') {
+                selectUsuarioComumDiv.classList.add('hidden-field');
+                camposPessoal.classList.remove('hidden-field');
+                camposPessoal.querySelector('input[name="cpf_pessoal"]').setAttribute('required', true);
+                camposPessoal.querySelector('input[name="senha_pessoal"]').setAttribute('required', true);
+
+                hiddenTipoInput.value = 'pessoal'; // Define o tipo para o PHP
+            }
+        }
+
+        function handleUsuarioComumType(selectedSubType) {
+            // Re-oculta campos específicos de funcionário e cliente/funcionário para resetar
+            camposFuncionario.classList.add('hidden-field');
+            certificadoArea.classList.add('hidden-field');
+            camposClienteFuncionario.classList.add('hidden-field');
+
+            // Garante que camposClienteFuncionario seja visível para cliente/funcionário
+            camposClienteFuncionario.classList.remove('hidden-field');
+
+            // Adiciona required para campos comuns a Cliente/Funcionário
+            camposClienteFuncionario.querySelector('input[name="email"]').setAttribute('required', true);
+            camposClienteFuncionario.querySelector('input[name="senha"]').setAttribute('required', true);
+            camposClienteFuncionario.querySelector('input[name="endereco"]').setAttribute('required', true);
+            camposClienteFuncionario.querySelector('input[name="foto_perfil"]').setAttribute('required', true);
+
+
+            if (selectedSubType === 'funcionario') {
+                camposFuncionario.classList.remove('hidden-field');
+                certificadoArea.classList.remove('hidden-field');
+                camposFuncionario.querySelector('input[name="ocupacao"]').setAttribute('required', true);
+                certificadoArea.querySelector('input[name="certificado"]').setAttribute('required', true);
+            }
+
+            hiddenTipoInput.value = selectedSubType; // Define o tipo para o PHP
+        }
+
+
+        // Event listeners para os botões principais
+        typeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                updateFormFields(button.dataset.type);
+            });
+        });
+
+        // Event listener para o select de Cliente/Funcionário
+        tipoUsuarioComumSelect.addEventListener('change', () => {
+            handleUsuarioComumType(tipoUsuarioComumSelect.value);
+        });
+
+        // Inicializa o formulário com o tipo 'Usuário Comum' (e 'Cliente' dentro dele) visível por padrão
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFormFields('usuario_comum');
+            // Garante que o select esteja ativo se "Usuário Comum" é o padrão
+            tipoUsuarioComumSelect.classList.add('active');
+        });
+    </script>
+</body>
+</html>
