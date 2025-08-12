@@ -74,7 +74,7 @@ $resFinalizados = $stmtHist->get_result();
             align-items: center;
             padding: 0.8rem 1.5rem;
             color: #fff;
-            background-color: #ff4b2b;
+            background: linear-gradient( #ff4b2b, #ff416c);
         }
         .nav .logo {
             display: flex;
