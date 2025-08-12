@@ -166,6 +166,17 @@ button:focus {
   outline: none;
 }
 
+.nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    color: #fff;
+    background: linear-gradient(to right, #ff4b2b, #ff416c); /* gradiente igual ao da overlay */
+}
+
+
 /*.social-container {
   margin: 20px 0;
 }
