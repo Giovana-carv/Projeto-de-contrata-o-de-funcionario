@@ -1,238 +1,254 @@
 <?php
 session_start();
-include('conexao.php');
-
-if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
-    exit();
+if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'cliente') {
+    header("Location: ../html/loginCadastro.html");
+    exit;
 }
 
-$id = $_SESSION['id'];
-$tipo = $_SESSION['tipo'];
-$usuarios = ($tipo == 'cliente') ? 'cliente' : 'funcionario';
+$conn = new mysqli("localhost", "root", "", "sistema_usuarios");
+if ($conn->connect_error) {
+    die("Erro na conexão: " . $conn->connect_error);
+}
 
-$sql = "SELECT * FROM usuarios WHERE id = $id";
-$resultado = mysqli_query($conn, $sql);
-$dados = mysqli_fetch_assoc($resultado);
+$cliente_id = $_SESSION['id'];
 
-if (isset($_POST['salvar'])) {
-    $nome = mysqli_real_escape_string($conn, $_POST['nome']);
-    $endereco = mysqli_real_escape_string($conn, $_POST['endereco']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $senha = mysqli_real_escape_string($conn, $_POST['senha']);
-    $telefone = mysqli_real_escape_string($conn, $_POST['telefone']); //novo
-    $ocupacao = isset($_POST['ocupacao']) ? mysqli_real_escape_string($conn, $_POST['ocupacao']) : '';
-    $comentario = isset($_POST['comentario']) ? mysqli_real_escape_string($conn, $_POST['comentario']) : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $telefone = $_POST['telefone'] ?? '';
+    $endereco = $_POST['endereco'] ?? '';
+    $senha = $_POST['senha'] ?? '';
 
-    $atualizacoes = "nome = '$nome', endereco = '$endereco', email = '$email', senha = '$senha', telefone = '$telefone'"; //novo
-    if ($tipo == 'funcionario') {
-        $atualizacoes .= ", ocupacao = '$ocupacao', comentario = '$comentario'";
+    // Foto
+    if (!empty($_FILES['foto_perfil']['name'])) {
+        $foto_nome = basename($_FILES['foto_perfil']['name']);
+        $foto_destino = "../uploads/" . $foto_nome;
+        move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $foto_destino);
     }
 
-    if (!empty($_FILES['foto']['name'])) {
-        $nomeFoto = uniqid() . "_" . $_FILES['foto']['name'];
-        move_uploaded_file($_FILES['foto']['tmp_name'], "../uploads/$nomeFoto");
-        $atualizacoes .= ", foto = '$nomeFoto'";
+    // Monta query dinamicamente
+    $query = "UPDATE usuarios SET nome=?, email=?, telefone=?, endereco=?";
+    $params = [$nome, $email, $telefone, $endereco];
+    $types = "ssss";
+
+    if (!empty($senha)) {
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+        $query .= ", senha=?";
+        $params[] = $senha_hash;
+        $types .= "s";
     }
 
-    if ($tipo == 'funcionario' && !empty($_FILES['certificado']['name'])) {
-        $nomeCertificado = uniqid() . "_" . $_FILES['certificado']['name'];
-        move_uploaded_file($_FILES['certificado']['tmp_name'], "../uploads/$nomeCertificado");
-        $atualizacoes .= ", certificado = '$nomeCertificado'";
+    if (!empty($_FILES['foto_perfil']['name'])) {
+        $query .= ", foto_perfil=?";
+        $params[] = $foto_nome;
+        $types .= "s";
     }
 
-    $sqlUpdate = "UPDATE usuarios SET $atualizacoes WHERE id = $id";
-$linkVoltar = ($tipo == 'cliente') ? '../cliente/painel_cliente.php' : '../funcionario/painel_funcionario.php';
+    $query .= " WHERE id=?";
+    $params[] = $cliente_id;
+    $types .= "i";
 
-    if (mysqli_query($conn, $sqlUpdate)) {
-        echo "<script>alert('Perfil atualizado com sucesso!');</script>";
-         echo "<a href='$linkVoltar'><button> Voltar </button> </a>";
-        exit();
-    } else {
-        echo "Erro ao atualizar: " . mysqli_error($conn);
-            echo "<a href='$linkVoltar'><button> Voltar </button> </a>";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param($types, ...$params);
+
+    if ($stmt->execute()) {
+        header("Location: ../php/painel_cliente.php");
+        exit;
     }
 }
 
+// Busca dados do usuário
+$stmt = $conn->prepare("SELECT nome, email, telefone, endereco, foto_perfil FROM usuarios WHERE id = ?");
+$stmt->bind_param("i", $cliente_id);
+$stmt->execute();
+$res = $stmt->get_result();
+$usuario = $res->fetch_assoc();
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Editar Perfil</title>
-    <style>
-               * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<title>Editar Perfil</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* Reset e base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fffaf3;
+    color: #212121;
+}
+a {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.2s ease;
+}
 
-        body {
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+/* Navbar */
+.nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ff416c;
+    color: #fff;
+}
+.nav .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: bold;
+}
+.nav .logo img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+.nav .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-weight: bold;
+}
+.nav .links a {
+    font-size: 1.1rem;
+    position: relative;
+    color: white;
+}
+.nav .links a:not(.login)::before {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #fff;
+    transition: width 0.2s ease;
+}
+.nav .links a:hover::before {
+    width: 100%;
+}
+.nav .links a.login {
+    background-color: #fff;
+    color: black;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+}
+.nav .links a.login:hover {
+    background-color: rgb(187, 7, 49);
+    color: #fff;
+}
 
-        section {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 4px 12px #ff416c;
-        }
+/* Container */
+.container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px #ff416c;
+}
+.container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
+/* Formulário */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.4rem;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        .inputbox {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="file"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            border-color: #4a90e2;
-        }
-
-        button {
-            padding: 12px;
-            background-color: rgb(185, 40, 74);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color:rgb(170, 36, 67);
-        }
-
-        a button {
-            background-color:rgb(170, 36, 67);
-        }
-
-        a button:hover {
-            background-color:rgb(170, 36, 67);
-        }
-
-        a {
-            text-align: center;
-            text-decoration: none;
-            display: block;
-        }
-    </style>
+/* Botões */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(185, 40, 74);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+button:hover {
+    background-color: rgb(170, 36, 67);
+}
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 1rem;
+}
+</style>
 </head>
 <body>
-<section>
-<form method="POST" enctype="multipart/form-data">
-    <h2>Editar Perfil - <?php echo ucfirst($tipo); ?></h2>
-    <div class="inputbox">
-    <label> Nome: </label>
-    <input type="text" name="nome" value="<?php echo $dados['nome']; ?>"><br>
-    <label> Endereço:</label>
-    <input type="text" name="endereco" placeholder="Endereço" value="<?php echo $dados['endereco']; ?>"><br>
-    <label> Senha:</label>
-    <input type="password" name="senha" placeholder="Senha" value="<?php echo $dados['senha']; ?>"><br>
-    <label> E-mail:</label>
-    <input type="email" name="email" placeholder="Email" value="<?php echo $dados['email']; ?>"><br>
-    <label> Telefone: </label>
-<input type="tel" oninput="formatarTelefone(this)" onblur="corrigirFormatoFinal(this)" name="telefone" value="<?php echo $dados['telefone']; ?>"><br>
-
-    <?php if ($tipo == 'funcionario'): ?>
-        <label> Ocupação:</label>
-        <input type="text" name="ocupacao" placeholder="Ocupação" value="<?php echo $dados['ocupacao']; ?>"><br>
-        <label> Comentário:</label>
-        <input type="text" name="comentario" placeholder="Comentário" value="<?php echo $dados['comentario']; ?>"><br>
-    <?php endif; ?>
-
-    <label>Nova foto de perfil:</label>
-    <input type="file" name="foto"><br>
-
-    <?php if ($tipo == 'funcionario'): ?>
-        <label>Nova foto do certificado:</label>
-        <input type="file" name="certificado"><br>
-    <?php endif; ?>
-
-    <button type="submit" name="salvar">Salvar</button>
-<?php
-    $linkVoltar = ($tipo == 'cliente') ? '../cliente/painel_cliente.php' : '../funcionario/painel_funcionario.php';
-?>
-<a href="<?php echo $linkVoltar; ?>">
-    <button type="button">Voltar para o Painel</button>
-</a>
+<nav class="nav">
+    <div class="logo">
+        <?php if (!empty($usuario['foto_perfil'])): ?>
+            <img src="../uploads/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="foto de perfil">
+        <?php endif; ?>
+        <h1>Editar Perfil</h1>
     </div>
-</form>
-</section>
+    <div class="links">
+        <a href="../php/top10.php">Top 10 Funcionários</a>
+        <a href="../php/editar_perfil.php">Editar Perfil</a>
+        <a href="../php/pesquisar.php">Pesquisar</a>
+        <a href="notificacoes.php">Notificações</a>
+        <a class="login" href="../php/logout.php">Sair</a>
+    </div>
+</nav>
 
-<script>
-function formatarTelefone(campo) {
-    let numero = campo.value.replace(/\D/g, '');
-
-    // Limita o número a no máximo 11 dígitos
-    if (numero.length > 11) numero = numero.slice(0, 11);
-
-    if (numero.length <= 10) {
-        // (99) 9999-9999 (parcial ou fixo)
-        campo.value = numero.replace(/(\d{0,2})(\d{0,4})(\d{0,4})/, function(_, ddd, parte1, parte2) {
-            let resultado = '';
-            if (ddd) resultado += '(' + ddd;
-            if (parte1) resultado += ') ' + parte1;
-            if (parte2) resultado += '-' + parte2;
-            return resultado;
-        });
-    } else {
-        // (99) 99999-9999 (celular)
-        campo.value = numero.replace(/(\d{0,2})(\d{0,5})(\d{0,4})/, function(_, ddd, parte1, parte2) {
-            let resultado = '';
-            if (ddd) resultado += '(' + ddd;
-            if (parte1) resultado += ') ' + parte1;
-            if (parte2) resultado += '-' + parte2;
-            return resultado;
-        });
-    }
-}
-
-function corrigirFormatoFinal(campo) {
-    // Garante a formatação final ao perder o foco
-    let numero = campo.value.replace(/\D/g, '');
-
-    if (numero.length === 11) {
-        campo.value = numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    } else if (numero.length === 10) {
-        campo.value = numero.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-    } else {
-        campo.value = numero; // Caso incompleto
-    }
-}
-</script>
-
-
+<div class="container">
+    <h2>Atualizar Informações</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" name="nome" id="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail:</label>
+            <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($usuario['email']); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="text" name="telefone" id="telefone" value="<?php echo htmlspecialchars($usuario['telefone']); ?>">
+        </div>
+        <div class="form-group">
+            <label for="endereco">Endereço:</label>
+            <input type="text" name="endereco" id="endereco" value="<?php echo htmlspecialchars($usuario['endereco']); ?>">
+        </div>
+        <div class="form-group">
+            <label for="senha">Nova Senha:</label>
+            <input type="password" name="senha" id="senha" placeholder="Deixe em branco para não alterar">
+        </div>
+        <div class="form-group">
+            <label for="foto_perfil">Foto de Perfil:</label>
+            <input type="file" name="foto_perfil" id="foto_perfil" accept="image/*">
+        </div>
+        <div class="button-group">
+            <button type="submit">Salvar Alterações</button>
+            <a href="../cliente/painel_cliente.php"><button type="button">Voltar</button></a>
+        </div>
+    </form>
+</div>
 </body>
 </html>

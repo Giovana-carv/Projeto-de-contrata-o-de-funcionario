@@ -1,63 +1,53 @@
 <?php
-include("conexao.php");
-// Dados
-$nome = $_POST['nome'];
-$email = $_POST['email'];
-$senha = $_POST['senha'];
-$tipo = $_POST['tipo'];
-$ocupacao = $_POST['ocupacao'] ?? null;
-$comentario = $_POST['comentario'] ?? null;
-$endereco = $_POST['endereco'];
-$telefone = $_POST['telefone'];
-
-// Uploads
-$foto_perfil = $_FILES['foto_perfil']['name'];
-$certificado = isset($_FILES['certificado']['name']) ? $_FILES['certificado']['name'] : null;
-
-// Move arquivos
-$dir = "../uploads/";
-move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $dir . $foto_perfil);
-
-if ($tipo == "funcionario" && !empty($certificado)) {
-    move_uploaded_file($_FILES['certificado']['tmp_name'], $dir . $certificado);
-} else {
-    $certificado = null;
+// Conexão com o banco
+$conn = new mysqli("localhost", "root", "", "sistema_usuarios");
+if ($conn->connect_error) {
+    die("Erro na conexão: " . $conn->connect_error);
 }
 
-// Inserção
-$sql = "INSERT INTO usuarios (nome, email, senha, tipo, ocupacao, comentario, endereco, foto_perfil, certificado, telefone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ssssssssss", $nome, $email, $senha, $tipo,  $ocupacao, $comentario, $endereco, $foto_perfil, $certificado, $telefone);
+// Recebendo dados
+$tipo = $_POST['tipo'] ?? '';
+$ocupacao = $_POST['ocupacao'] ?? '';
+$comentario = $_POST['comentario'] ?? '';
+$nome = $_POST['nome'] ?? '';
+$email = $_POST['email'] ?? '';
+$senha = $_POST['senha'] ?? '';
+$endereco = $_POST['endereco'] ?? '';
+$telefone = $_POST['telefone'] ?? '';
+
+if (!$tipo || !$nome || !$email || !$senha || !$endereco || !$telefone) {
+    echo "Todos os campos obrigatórios devem ser preenchidos.";
+    exit;
+}
+
+// Criptografar senha
+$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+// Upload da foto de perfil
+$fotoPerfil = null;
+if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === 0) {
+    $ext = pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION);
+    $fotoPerfil = uniqid() . "." . $ext;
+    move_uploaded_file($_FILES['foto_perfil']['tmp_name'], "../uploads/$fotoPerfil");
+}
+
+// Upload do certificado (apenas funcionário)
+$certificado = null;
+if ($tipo === "funcionario" && isset($_FILES['certificado']) && $_FILES['certificado']['error'] === 0) {
+    $ext = pathinfo($_FILES['certificado']['name'], PATHINFO_EXTENSION);
+    $certificado = uniqid() . "." . $ext;
+    move_uploaded_file($_FILES['certificado']['tmp_name'], "../uploads/$certificado");
+}
+
+// Inserir no banco
+$stmt = $conn->prepare("INSERT INTO usuarios (tipo, ocupacao, comentario, nome, email, senha, endereco, telefone, foto_perfil, certificado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssssssss", $tipo, $ocupacao, $comentario, $nome, $email, $senhaHash, $endereco, $telefone, $fotoPerfil, $certificado);
 
 if ($stmt->execute()) {
-   echo "Cadastro realizado com sucesso!";
+    echo "sucesso";
 } else {
-    echo "Erro: " . $stmt->error;
+    echo "Erro ao cadastrar: " . $stmt->error;
 }
-
 
 $stmt->close();
 $conn->close();
-?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <style>
-    *{
-        padding: 4;
-        margin: 3;
-        box-sizing: border-box solid black;
-        font-family: 'Inter', sans-serif;
-        text-align: center;
-    }
-    </style>
-</head>
-<body>
-    <form>
-        <button><a href="../html/loginCadastro.html">Voltar</a></button>
-    </form>
-</body>
-</html>
