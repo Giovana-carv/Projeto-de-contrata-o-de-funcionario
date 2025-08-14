@@ -5,23 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login e Cadastro</title>
 
-  <!-- 1) Bootstrap primeiro para não quebrar seu layout -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- 2) Seu CSS depois, para sobrepor .container, etc -->
-  <link rel="stylesheet" href="../css/loginCadastro.css" />
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
+  <!-- Seu CSS -->
+  <link rel="stylesheet" href="../css/loginCadastro.css" />
+
   <style>
-    /* Garantia extra: se precisar neutralizar o container do Bootstrap aqui, use: */
-    /* #container.container { max-width: 100% !important; padding: 0 !important; } */
+    /* Estilo para select tipo de usuário */
+    select[name="tipo"] {
+      background-color: white;
+      border: 2px solid #dc3545;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    select[name="tipo"]:focus {
+      border-color: #dc3545;
+      box-shadow: 0 0 5px rgba(220,53,69,0.5);
+    }
+
+    /* Contorno caixinhas de label */
+    label {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      padding: 2px 6px;
+      border: 1px solid #dc3545;
+      border-radius: 4px;
+      background-color: #fff0f1;
+      font-weight: bold;
+      font-size: 14px;
+      color: #dc3545;
+    }
+
+    /* Botões padrão */
+    button {
+      background-color: #dc3545; /* vermelho */
+      color: white;
+      border: none;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Ghost buttons (laterais Entrar e Cadastrar) */
+    .ghost {
+      background-color: #dc3545 !important;
+      color: white !important;
+      border: none !important;
+      transition: background-color 0.2s ease;
+    }
+    .ghost:hover {
+      background-color: #28a745 !important; /* verde */
+    }
   </style>
 </head>
 <body>
   <div class="container" id="container">
     <!-- Cadastro -->
     <div class="form-container sign-up-container">
-      <!-- Importante: sem action. Quem envia é o JS via fetch -->
       <form id="formCadastro" enctype="multipart/form-data">
         <h2>Crie uma Conta:</h2>
 
@@ -83,7 +134,7 @@
     </div>
   </div>
 
-  <!-- Toast Bootstrap (fica fora dos painéis para não afetar layout) -->
+  <!-- Toast Bootstrap -->
   <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     <div id="toastCadastro" class="toast align-items-center text-bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
@@ -97,7 +148,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Alternância dos painéis
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
     const containerEl  = document.getElementById('container');
@@ -105,7 +155,6 @@
     signUpButton.addEventListener('click', () => containerEl.classList.add("right-panel-active"));
     signInButton.addEventListener('click', () => containerEl.classList.remove("right-panel-active"));
 
-    // Exibe/oculta campos do funcionário
     const tipoSelect = document.querySelector('select[name="tipo"]');
     const certArea   = document.getElementById('certificado-area');
     tipoSelect.addEventListener('change', () => {
@@ -116,7 +165,6 @@
       document.getElementById("camposFuncionario").style.display = (tipo === 'funcionario' ? 'block' : 'none');
     }
 
-    // Envio do cadastro via AJAX (sem recarregar)
     document.getElementById('formCadastro').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -129,27 +177,19 @@
           const toastMsg = document.getElementById('toastMsg');
 
           if (txt.trim() === 'sucesso') {
-            // Toast verde
             toastEl.classList.remove('text-bg-danger');
             toastEl.classList.add('text-bg-success');
             toastMsg.textContent = '✅ Cadastro realizado com sucesso!';
 
-            // Mostra toast
             new bootstrap.Toast(toastEl, { delay: 2000 }).show();
-
-            // Troca imediatamente para o painel de login (sem recarregar e sem tela branca)
             containerEl.classList.remove('right-panel-active');
-
-            // (opcional) limpar formulário
             this.reset();
             certArea.style.display = 'none';
             document.getElementById("camposFuncionario").style.display = 'none';
           } else {
-            // Toast vermelho com o erro vindo do PHP
             toastEl.classList.remove('text-bg-success');
             toastEl.classList.add('text-bg-danger');
             toastMsg.textContent = '❌ ' + txt;
-
             new bootstrap.Toast(toastEl, { delay: 3500 }).show();
           }
         })
