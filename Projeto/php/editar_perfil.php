@@ -1,9 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'cliente') {
+if (!isset($_SESSION['id']) || !in_array($_SESSION['tipo'], ['cliente', 'funcionario'])) {
     header("Location: ../html/loginCadastro.html");
     exit;
 }
+
 
 $conn = new mysqli("localhost", "root", "", "sistema_usuarios");
 if ($conn->connect_error) {
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param($types, ...$params);
 
     if ($stmt->execute()) {
-        header("Location: ../php/painel_cliente.php");
+        header("Location: ../funcionario/painel_funcionario.php");
         exit;
     }
 }

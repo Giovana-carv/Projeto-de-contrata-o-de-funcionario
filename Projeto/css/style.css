@@ -1,260 +1,184 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Open+Sans:wght@300;400;500;600&display=swap');
-
+/* Reset básico */
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+/* Fundo e container principal */
 body {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #0c0ce94d;
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f6f5f7;
 }
 
-.container {
-    width: 80%;
-    height: 80vh;
-    display: flex;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.212);
+/* Container de login/cadastro */
+#container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25),
+              0 10px 10px rgba(0,0,0,0.22);
+  position: relative;
+  overflow: hidden;
+  width: 850px; /* antes maior, agora mais compacto */
+  max-width: 100%;
+  min-height: 500px;
+  transition: transform 0.6s ease-in-out;
 }
 
-.form-image {
-    width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #fde3a7d7;
-    padding: 1rem;
+/* Containers de formulário */
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 40px;
+  width: 50%;
 }
 
-.form-image img {
-    width: 31rem;
+/* Cadastro (lado direito inicialmente) */
+.sign-up-container {
+  left: 0;
+  opacity: 0;
+  z-index: 1;
 }
 
-.form {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
-    padding: 3rem;
+/* Login (lado esquerdo por padrão) */
+.sign-in-container {
+  left: 0;
+  z-index: 2;
 }
 
-.form-header {
-    margin-bottom: 3rem;
-    display: flex;
-    justify-content: space-between;
+/* Quando ativa o painel de cadastro */
+#container.right-panel-active .sign-in-container {
+  transform: translateX(100%);
 }
 
-.login-button {
-    display: flex;
-    align-items: center;
+#container.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
 }
 
-.login-button button {
-    border: none;
-    background-color: #dc3545;
-    padding: 0.4rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #fff;
+/* Formulários */
+form {
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0 30px;
+  width: 100%;
+  max-width: 360px; /* 🔥 reduz largura do formulário */
+  text-align: center;
 }
 
-.login-button button:hover {
-    background-color: #b02a37;
+form h1, form h2 {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.login-button button a {
-    text-decoration: none;
-    font-weight: 500;
-    color: #fff;
+form input, form select, form textarea {
+  background: #eee;
+  border: none;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  border-radius: 8px;
 }
 
-.form-header h1::after {
-    content: '';
-    display: block;
-    width: 5rem;
-    height: 0.3rem;
-    background-color: #6c63ff;
-    margin: 0 auto;
-    position: absolute;
-    border-radius: 10px;
+form button {
+  border-radius: 20px;
+  border: 1px solid #ff4b2b;
+  background-color: #ff4b2b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  transition: transform 80ms ease-in;
 }
 
-.input-group {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 1rem 0;
+form button:active {
+  transform: scale(0.95);
 }
 
-.input-box {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.1rem;
+form button:focus {
+  outline: none;
 }
 
-.input-box input {
-    margin: 0.6rem 0;
-    padding: 0.8rem 1.2rem;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 1px 1px 6px #0000001c;
-    font-size: 0.8rem;
+a {
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  margin: 10px 0;
 }
 
-.input-box input:hover {
-    background-color: #eeeeee75;
+/* Overlay */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
 }
 
-.input-box input:focus-visible {
-    outline: 1px solid #6c63ff;
+#container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
 }
 
-.input-box label,
-.gender-title h6 {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #000000c0;
+.overlay {
+  background: linear-gradient(to right, #ff4b2b, #ff416c);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
 }
 
-.input-box input::placeholder {
-    color: #000000be;
+#container.right-panel-active .overlay {
+  transform: translateX(50%);
 }
 
-/* Estilo unificado do select */
-.input-box select {
-    margin: 0.6rem 0;
-    padding: 0.8rem 1.2rem;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 1px 1px 6px #0000001c;
-    font-size: 0.8rem;
-    background-color: #f9f9f9;
-    color: #333;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg fill='none' height='20' stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E<polyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 16px;
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
 }
 
-.input-box select:hover {
-    background-color: #eeeeee75;
+.overlay-left {
+  transform: translateX(-20%);
+  left: 0;
 }
 
-.input-box select:focus-visible {
-    outline: 1px solid #6c63ff;
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
 }
 
-.input-box select option {
-    background-color: #fff;
-    color: #333;
-    padding: 8px;
-}
-
-.gender-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.62rem;
-    padding: 0 .5rem;
-}
-
-.gender-input {
-    display: flex;
-    align-items: center;
-}
-
-.gender-input input {
-    margin-right: 0.35rem;
-}
-
-.gender-input label {
-    font-size: 0.81rem;
-    font-weight: 600;
-    color: #000000c0;
-}
-
-.continue-button button,
-.file-label {
-    width: 100%;
-    margin-top: 1rem;
-    border: none;
-    background-color: #dc3545;
-    padding: 0.62rem;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #fff;
-    text-align: center;
-}
-
-.continue-button button:hover,
-.file-label:hover {
-    background-color: #b02a37;
-}
-
-.continue-button button a {
-    text-decoration: none;
-    font-size: 0.93rem;
-    font-weight: 500;
-    color: #fff;
-}
-
-/* Estilo para o botão de arquivo */
-input[type="file"] {
-    display: none;
-}
-
-.file-label {
-    display: inline-block;
-    padding: 0.62rem;
-    border-radius: 5px;
-    font-size: 0.93rem;
-    font-weight: 500;
-}
-
-/* Responsivo */
-@media screen and (max-width: 1330px) {
-    .form-image {
-        display: none;
-    }
-    .container {
-        width: 50%;
-    }
-    .form {
-        width: 100%;
-    }
-}
-
-@media screen and (max-width: 1064px) {
-    .container {
-        width: 90%;
-        height: auto;
-    }
-    .input-group {
-        flex-direction: column;
-        z-index: 5;
-        padding-right: 5rem;
-        max-height: 10rem;
-        overflow-y: scroll;
-        flex-wrap: nowrap;
-    }
-    .gender-inputs {
-        margin-top: 2rem;
-    }
-    .gender-group {
-        flex-direction: column;
-    }
-    .gender-title h6 {
-        margin: 0;
-    }
-    .gender-input {
-        margin-top: 0.5rem;
-    }
+/* Botão ghost (transparente na overlay) */
+button.ghost {
+  background-color: transparent;
+  border-color: #fff;
 }

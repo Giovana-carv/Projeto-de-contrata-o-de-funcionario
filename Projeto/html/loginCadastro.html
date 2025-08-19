@@ -11,63 +11,8 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <!-- Seu CSS -->
+  <!-- CSS próprio -->
   <link rel="stylesheet" href="../css/loginCadastro.css" />
-
-  <style>
-    /* Estilo para select tipo de usuário */
-    select[name="tipo"] {
-      background-color: white;
-      border: 2px solid #dc3545;
-      border-radius: 6px;
-      padding: 8px;
-      font-size: 14px;
-      color: #333;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    select[name="tipo"]:focus {
-      border-color: #dc3545;
-      box-shadow: 0 0 5px rgba(220,53,69,0.5);
-    }
-
-    /* Contorno caixinhas de label */
-    label {
-      display: block;
-      margin-top: 8px;
-      margin-bottom: 4px;
-      padding: 2px 6px;
-      border: 1px solid #dc3545;
-      border-radius: 4px;
-      background-color: #fff0f1;
-      font-weight: bold;
-      font-size: 14px;
-      color: #dc3545;
-    }
-
-    /* Botões padrão */
-    button {
-      background-color: #dc3545; /* vermelho */
-      color: white;
-      border: none;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      transition: background-color 0.2s ease;
-    }
-
-    /* Ghost buttons (laterais Entrar e Cadastrar) */
-    .ghost {
-      background-color: #dc3545 !important;
-      color: white !important;
-      border: none !important;
-      transition: background-color 0.2s ease;
-    }
-    .ghost:hover {
-      background-color: #28a745 !important; /* verde */
-    }
-  </style>
 </head>
 <body>
   <div class="container" id="container">
@@ -84,7 +29,7 @@
 
         <div id="camposFuncionario" style="display:none;">
           <input type="text" name="ocupacao" placeholder="Ocupação"><br>
-          <label for="comentario">Deixe um comentario:</label>
+          <label for="comentario">Deixe um comentário:</label>
           <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
         </div>
 
@@ -92,7 +37,7 @@
         <input type="email" name="email"    placeholder="E-mail"   required />
         <input type="password" name="senha" placeholder="Senha"    required />
         <input type="text"  name="endereco" placeholder="Endereço" required />
-        <input type="tel"   name="telefone" placeholder="telefone" required />
+        <input type="tel"   name="telefone" placeholder="Telefone" required />
 
         <label>Foto de Perfil</label>
         <input type="file" name="foto_perfil" accept="image/*" required />
@@ -147,7 +92,9 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- JavaScript interno -->
   <script>
+    // Botões do overlay
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
     const containerEl  = document.getElementById('container');
@@ -155,16 +102,20 @@
     signUpButton.addEventListener('click', () => containerEl.classList.add("right-panel-active"));
     signInButton.addEventListener('click', () => containerEl.classList.remove("right-panel-active"));
 
+    // Campos do tipo de usuário
     const tipoSelect = document.querySelector('select[name="tipo"]');
     const certArea   = document.getElementById('certificado-area');
+
     tipoSelect.addEventListener('change', () => {
       certArea.style.display = tipoSelect.value === 'funcionario' ? 'block' : 'none';
     });
+
     function mostrarCampos() {
       const tipo = document.getElementById("tipo").value;
       document.getElementById("camposFuncionario").style.display = (tipo === 'funcionario' ? 'block' : 'none');
     }
 
+    // Submissão do formulário com fetch
     document.getElementById('formCadastro').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -180,7 +131,6 @@
             toastEl.classList.remove('text-bg-danger');
             toastEl.classList.add('text-bg-success');
             toastMsg.textContent = '✅ Cadastro realizado com sucesso!';
-
             new bootstrap.Toast(toastEl, { delay: 2000 }).show();
             containerEl.classList.remove('right-panel-active');
             this.reset();
