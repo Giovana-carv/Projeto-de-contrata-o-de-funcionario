@@ -54,11 +54,14 @@
     <!-- Login -->
     <div class="form-container sign-in-container">
       <form action="../php/login.php" method="post">
-        <h1>Entrar</h1>
+        <h1 class="text-center">Entrar</h1>
         <input type="text" name="nome"  placeholder="Nome"  required>
         <input type="password" name="senha" placeholder="Senha" required>
-        <a href="#">Esqueceu sua senha?</a>
-        <button type="submit">Login</button>
+
+        <!-- Link em forma de botão -->
+        <a href="#" class="btn-link-forgot">Esqueceu sua senha?</a>
+
+        <button type="submit" class="btn-login">Login</button>
       </form>
     </div>
 

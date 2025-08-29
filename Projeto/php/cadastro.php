@@ -21,7 +21,7 @@ if (!$tipo || !$nome || !$email || !$senha || !$endereco || !$telefone) {
 }
 
 // Criptografar senha
-$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
 
 // Upload da foto de perfil
 $fotoPerfil = null;
@@ -41,7 +41,7 @@ if ($tipo === "funcionario" && isset($_FILES['certificado']) && $_FILES['certifi
 
 // Inserir no banco
 $stmt = $conn->prepare("INSERT INTO usuarios (tipo, ocupacao, comentario, nome, email, senha, endereco, telefone, foto_perfil, certificado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssssssss", $tipo, $ocupacao, $comentario, $nome, $email, $senhaHash, $endereco, $telefone, $fotoPerfil, $certificado);
+$stmt->bind_param("ssssssssss", $tipo, $ocupacao, $comentario, $nome, $email, $senha, $endereco, $telefone, $fotoPerfil, $certificado);
 
 if ($stmt->execute()) {
     echo "sucesso";
