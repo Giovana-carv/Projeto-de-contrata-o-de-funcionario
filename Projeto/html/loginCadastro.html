@@ -22,32 +22,32 @@
         <h2>Crie uma Conta:</h2>
 
         <span>Tipo de usuário</span>
-        <select name="tipo" id="tipo" onchange="mostrarCampos()" required>
+        <select name="tipo" id="tipo" class="form-select" required>
           <option value="cliente">Cliente</option>
           <option value="funcionario">Funcionário</option>
         </select>
 
-        <div id="camposFuncionario" style="display:none;">
-          <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+        <div id="camposFuncionario" style="display:none;" >
+          <input type="text" name="ocupacao" class = "form-control" class ="form-control border border-danger"  placeholder="Ocupação"><br>
           <label for="comentario">Deixe um comentário:</label>
           <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
         </div>
 
-        <input type="text"  name="nome"     placeholder="Nome"     required />
-        <input type="email" name="email"    placeholder="E-mail"   required />
-        <input type="password" name="senha" placeholder="Senha"    required />
-        <input type="text"  name="endereco" placeholder="Endereço" required />
-        <input type="tel"   name="telefone" placeholder="Telefone" required />
-
+        <input type="text"  name="nome"  class ="form-control border border-danger" placeholder="Nome" required />
+        <input type="email" name="email" class ="form-control border border-danger"  placeholder="E-mail"   required />
+        <input type="password" name="senha" class ="form-control border border-danger"  placeholder="Senha"    required />
+        <input type="text"  name="endereco" class ="form-control border border-danger"  placeholder="Endereço" required />
+        <input type="tel"   name="telefone" class ="form-control border border-danger"  placeholder="Telefone" required />
+        <div class="">
         <label>Foto de Perfil</label>
-        <input type="file" name="foto_perfil" accept="image/*" required />
-
+        <input type="file" name="foto_perfil" class ="form-control border border-danger"  accept="image/*" required />
+</div>
         <div id="certificado-area" style="display:none;">
           <label>Certificado (somente para funcionários)</label>
-          <input type="file" name="certificado" accept="image/*" />
+          <input type="file" name="certificado" class ="form-control border border-danger"  accept="image/*" />
         </div>
 
-        <button type="submit">Cadastrar-se</button>
+        <button type="submit" class="btn-cadastrar">Cadastrar-se</button>
       </form>
     </div>
 
@@ -59,7 +59,7 @@
         <input type="password" name="senha" placeholder="Senha" required>
 
         <!-- Link em forma de botão -->
-        <a href="#" class="btn-link-forgot">Esqueceu sua senha?</a>
+        <a href="#" class="forgot-password">Esqueceu sua senha?</a>
 
         <button type="submit" class="btn-login">Login</button>
       </form>
@@ -111,12 +111,9 @@
 
     tipoSelect.addEventListener('change', () => {
       certArea.style.display = tipoSelect.value === 'funcionario' ? 'block' : 'none';
+      document.getElementById("camposFuncionario").style.display =
+        tipoSelect.value === 'funcionario' ? 'block' : 'none';
     });
-
-    function mostrarCampos() {
-      const tipo = document.getElementById("tipo").value;
-      document.getElementById("camposFuncionario").style.display = (tipo === 'funcionario' ? 'block' : 'none');
-    }
 
     // Submissão do formulário com fetch
     document.getElementById('formCadastro').addEventListener('submit', function (e) {
