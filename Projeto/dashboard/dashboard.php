@@ -1,5 +1,5 @@
 <?php
-// Conexão
+// Conexão com banco
 $conn = new mysqli("localhost", "root", "", "sistema_usuarios");
 if ($conn->connect_error) {
     die("Erro na conexão: " . $conn->connect_error);
@@ -9,31 +9,35 @@ if ($conn->connect_error) {
 $filtro = isset($_GET['tipo']) ? trim($_GET['tipo']) : "";
 $listarTodos = isset($_GET['listar']) ? true : false;
 
-// Busca usuários
+// Inicializa array e flag
 $usuarios = [];
-if ($filtro !== "") {
-    $sql  = "SELECT nome, email, tipo, ocupacao FROM usuarios WHERE tipo LIKE ? OR ocupacao LIKE ?";
-    $stmt = $conn->prepare($sql);
-    $like = "%{$filtro}%";
-    $stmt->bind_param("ss", $like, $like);
-    $stmt->execute();
-    $result = $stmt->get_result();
-} else {
-    if ($listarTodos) {
-        $result = $conn->query("SELECT nome, email, tipo, ocupacao FROM usuarios");
+$mostrarTabela = false;
+
+// Consulta somente se houver filtro ou listar todos
+if ($filtro !== "" || $listarTodos) {
+    if ($filtro !== "") {
+        $sql  = "SELECT nome, email, tipo, ocupacao FROM usuarios WHERE tipo LIKE ? OR ocupacao LIKE ?";
+        $stmt = $conn->prepare($sql);
+        $like = "%{$filtro}%";
+        $stmt->bind_param("ss", $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
     } else {
-        $result = false;
+        // Listar todos
+        $result = $conn->query("SELECT nome, email, tipo, ocupacao FROM usuarios");
     }
-}
 
-if ($result && $result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $usuarios[] = $row;
+    if ($result && $result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $usuarios[] = $row;
+        }
     }
-}
 
-$mostrarTabela = (!empty($usuarios)) ? "table" : "none";
+    // Mostrar a tabela apenas após uma ação
+    $mostrarTabela = true;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -49,7 +53,7 @@ $mostrarTabela = (!empty($usuarios)) ? "table" : "none";
 
   <style>
     body { background: #f4f6f9; font-family: 'Arial', sans-serif; text-align:center; margin:0; }
-    header { background: linear-gradient(to right, #ff4b2b, #ff416c); color:#fff; padding:20px; margin-bottom:30px; }
+    header { background: linear-gradient(to right, #ff4b2b, #ff416c); color:#fff; padding:20px; margin-bottom:0; }
 
     .search-bar {
       display:flex; justify-content:center; align-items:stretch; margin:10px auto 20px;
@@ -74,7 +78,7 @@ $mostrarTabela = (!empty($usuarios)) ? "table" : "none";
 
     /* Botão Listar Todos estilizado como card */
     .btn-listar {
-      display:inline-block; margin-bottom:20px;
+      display:inline-block; margin:20px auto;
       background:white; border-radius:12px; padding:20px 30px;
       box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer;
       font-weight:bold; color:#ff4b2b; border:2px solid transparent;
@@ -94,6 +98,13 @@ $mostrarTabela = (!empty($usuarios)) ? "table" : "none";
     <p>Gerenciamento de cadastros</p>
   </header>
 
+  <!-- Botão de Relatório PDF -->
+  <div class="container mt-3 d-flex justify-content-end">
+    <a href="#" id="btnRelatorio" class="btn btn-danger shadow-sm">
+      <i class="fa-solid fa-file-pdf"></i> Gerar Relatório PDF
+    </a>
+  </div>
+
   <!-- Botão Listar Todos estilizado -->
   <div class="btn-listar" onclick="listarTodos()">
     <i class="fa-solid fa-list"></i> Listar Todos
@@ -109,36 +120,44 @@ $mostrarTabela = (!empty($usuarios)) ? "table" : "none";
     <button type="submit"><i class="fa fa-search"></i></button>
   </form>
 
-  <!-- Tabela -->
-  <table id="tabelaUsuarios" class="table table-striped table-bordered" style="display: <?= $mostrarTabela ?>;">
+  <!-- Tabela de Usuários -->
+  <table id="tabelaUsuarios" class="table table-striped table-bordered" style="display: <?= $mostrarTabela ? 'table' : 'none' ?>;">
     <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Tipo</th>
-        <th>Ocupação</th>
-      </tr>
+        <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Ocupação</th>
+        </tr>
     </thead>
     <tbody>
-      <?php if (!empty($usuarios)): ?>
-        <?php foreach ($usuarios as $u): ?>
-          <tr>
-            <td><?= htmlspecialchars($u["nome"]) ?></td>
-            <td><?= htmlspecialchars($u["email"]) ?></td>
-            <td><?= htmlspecialchars($u["tipo"]) ?></td>
-            <td><?= htmlspecialchars($u["ocupacao"]) ?></td>
-          </tr>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <tr><td colspan="4">Nenhum usuário encontrado.</td></tr>
-      <?php endif; ?>
+        <?php if (!empty($usuarios)): ?>
+            <?php foreach ($usuarios as $u): ?>
+                <tr>
+                    <td><?= htmlspecialchars($u["nome"]) ?></td>
+                    <td><?= htmlspecialchars($u["email"]) ?></td>
+                    <td><?= htmlspecialchars($u["tipo"]) ?></td>
+                    <td><?= htmlspecialchars($u["ocupacao"]) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </tbody>
-  </table>
+</table>
+
 
   <script>
     function listarTodos() {
       window.location.href = "?listar=1";
     }
+
+    // Botão PDF com filtro dinâmico
+    const btn = document.getElementById('btnRelatorio');
+    btn.addEventListener('click', () => {
+      const filtro = document.querySelector('input[name="tipo"]').value;
+      let url = 'relatorio.php?listar=1';
+      if(filtro) url += '&tipo=' + encodeURIComponent(filtro);
+      window.open(url, '_blank');
+    });
   </script>
 </body>
 </html>

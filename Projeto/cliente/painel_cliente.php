@@ -211,6 +211,28 @@ $funcionarios = $conn->query("SELECT * FROM usuarios WHERE tipo='funcionario'");
                 width: 90%;
             }
         }
+
+        .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* mantem todos alinhados à direita */
+    gap: 15px; /* espaço entre botões */
+}
+
+.dashboard-btn {
+    background-color: #fff;
+    color: #ff416c;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.dashboard-btn:hover {
+    background-color: #ff416c;
+    color: #fff;
+}
+
     </style>
 </head>
 <body>
@@ -220,15 +242,19 @@ $funcionarios = $conn->query("SELECT * FROM usuarios WHERE tipo='funcionario'");
                 <img src="../uploads/<?php echo htmlspecialchars($foto['foto_perfil']); ?>" alt="foto de perfil">
             <?php endif; ?>
             <h1>Bem-vindo, <?php echo htmlspecialchars($_SESSION['nome']); ?>!</h1>
-        </div>
+     <div class="links">
+    <a href="../php/top10.php">Top 10 Funcionários</a>
+    <a href="../php/editar_perfil.php">Editar Perfil</a>
+    <a href="../php/pesquisar.php">Pesquisar</a>
+    <a href="notificacoes.php">Notificações</a>
 
-        <div class="links">
-            <a href="../php/top10.php">Top 10 Funcionários</a>
-            <a href="../php/editar_perfil.php">Editar Perfil</a>
-            <a href="../php/pesquisar.php">Pesquisar</a>
-            <a href="notificacoes.php">Notificações</a>
-            <a class="login" href="../php/logout.php">Sair</a>
-        </div>
+    <!-- Novo botão do dashboard -->
+    <a href="../php/dashboard.php" class="dashboard-btn">Painel Geral</a>
+
+    <a class="login" href="../php/logout.php">Sair</a>
+</div>
+
+
     </nav>
 
     <h3>Lista de Funcionários</h3>    

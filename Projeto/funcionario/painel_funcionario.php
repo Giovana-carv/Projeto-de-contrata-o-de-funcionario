@@ -111,14 +111,21 @@ $resFinalizados = $stmtHist->get_result();
             <h1>Bem-vindo, <?php echo htmlspecialchars($nomeFuncionario); ?>!</h1>
         </div>
         <div class="links">
-            <a href="galeria.php">Galeria</a>
-            <a href="../php/solicitacoes.php">Solicitações de Contratação</a>
-            <a href="../php/em_atendimento.php">Em Atendimento</a>
-            <a href="../php/editar_perfil_funcionario.php">Editar Perfil</a>
-            <a href="mensagens.php">Mensagens</a>
-            <a href="#">Sobre nós</a>
-            <a class="login" href="../php/logout.php">Sair</a>
-        </div>
+    <a href="galeria.php">Galeria</a>
+    <a href="../php/solicitacoes.php">Solicitações de Contratação</a>
+    <a href="../php/em_atendimento.php">Em Atendimento</a>
+    <a href="../php/editar_perfil_funcionario.php">Editar Perfil</a>
+    <a href="mensagens.php">Mensagens</a>
+    <a href="#">Sobre nós</a>
+
+    <!-- Novo botão para Dashboard -->
+    <a href="../php/dashboard.php" style="background-color:#fff;color:#ff416c;padding:0.5rem 1rem;border-radius:10px;font-weight:bold;">
+        Central
+    </a>
+
+    <a class="login" href="../php/logout.php">Sair</a>
+</div>
+
     </nav>
 
     <h2>Histórico de Serviços</h2>
