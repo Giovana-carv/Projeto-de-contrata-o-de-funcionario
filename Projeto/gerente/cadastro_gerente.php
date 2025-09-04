@@ -1,41 +1,45 @@
 <?php
-include("../php/conexao.php");
-// Dados
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-$nome = $_POST['nome'];
-$email = $_POST['email'];
-$senha = $_POST['senha'];
+include('../php/conexao.php');
 
-// Uploads
-$foto_perfil = $_FILES['foto_perfil']['name'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nome  = $_POST['nome'];
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
+    $foto  = $_FILES['foto']['name'] ?? 'default.png';
 
-// Move arquivos
-$dir = "../uploads/";
-move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $dir . $foto_perfil);
+    // Upload da foto (se enviada)
+    if (!empty($_FILES['foto']['name'])) {
+        $destino = "uploads/" . basename($_FILES['foto']['name']);
+        move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
+    } else {
+        $foto = "default.png";
+    }
 
-// Inserção
-$sql = "INSERT INTO gerentes (nome, email, senha) VALUES (?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $nome, $email, $senha);
+    $sql = "INSERT INTO gerentes (nome, email, senha, foto_perfil) 
+            VALUES ('$nome', '$email', '$senha', '$foto')";
 
-if ($stmt->execute()) {
-   echo "Gerente cadastro com sucesso!";
-} else {
-    echo "Erro: " . $stmt->error;
+    if ($conn->query($sql)) {
+        echo "Gerente cadastrado com sucesso!";
+        echo "<br><a href='loginGerente.php'>Logar</a>";
+    } else {
+        echo "Erro: " . $conn->error;
+    }
 }
-}
-
-echo "<a href = 'login_gerente.html'>Logar</a>";
 ?>
 
-<form method="POST">
-    <input type="text" name="nome" placeholder="Nome" required />
-    <input type="email" name="email" placeholder="E-mail" required />
-    <input type="password" name="senha" placeholder="Senha" required />
-    
-    <label>Foto de Perfil</label>
-    <input type="file" name="foto_perfil" accept="image/*" required />
+<form method="POST" enctype="multipart/form-data">
+    <label>Nome:</label>
+    <input type="text" name="nome" required><br>
 
-    <input type="submit" value="Entrar">
+    <label>Email:</label>
+    <input type="email" name="email" required><br>
 
+    <label>Senha:</label>
+    <input type="password" name="senha" required><br>
+
+    <label>Foto de perfil:</label>
+    <input type="file" name="foto"><br><br>
+
+    <button type="submit">Cadastrar</button>
+    <a href="loginGerente.php">Logar</a>
 </form>

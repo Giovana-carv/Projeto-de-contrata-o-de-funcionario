@@ -5,162 +5,158 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login e Cadastro</title>
 
-  <!-- Bootstrap CSS somente para componentes (sem sobrescrever layout) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
   <!-- CSS próprio -->
   <link rel="stylesheet" href="../css/loginCadastro.css" />
+
+  <!-- Bootstrap CSS apenas para toast -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="login-cadastro-container" id="container">
-    <!-- Cadastro -->
-    <div class="form-container sign-up-container">
-  <form id="formCadastro" enctype="multipart/form-data">
-    <h2>Crie uma Conta:</h2>
 
-    <span>Tipo de usuário</span>
-    <select name="tipo" id="tipo" required>
-      <option value="cliente">Cliente</option>
-      <option value="funcionario">Funcionário</option>
-    </select>
+<div class="login-cadastro-container" id="container">
 
-    <!-- Campos adicionais para funcionário -->
-    <div id="camposFuncionario" style="display:none;">
-      <input type="text" name="ocupacao" placeholder="Ocupação"><br>
-      <label for="comentario">Deixe um comentário:</label>
-      <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
-    </div>
+  <!-- Formulário de Cadastro -->
+  <div class="form-container sign-up-container">
+    <form id="formCadastro" enctype="multipart/form-data">
+      <h2>Crie uma Conta</h2>
 
-    <input type="text"  name="nome"     placeholder="Nome"     required />
-    <input type="email" name="email"    placeholder="E-mail"   required />
-    <input type="password" name="senha" placeholder="Senha"    required />
-    <input type="text"  name="endereco" placeholder="Endereço" required />
-    <input type="tel"   name="telefone" placeholder="Telefone" required />
+      <span>Tipo de usuário</span>
+      <select name="tipo" id="tipo" required>
+        <option value="cliente">Cliente</option>
+        <option value="funcionario">Funcionário</option>
+      </select>
 
-<label class="custom-file-button" for="foto_perfil">Foto de Perfil</label>
-<input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" required />
+      <div id="camposFuncionario" style="display:none;">
+        <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+        <label for="comentario">Deixe um comentário:</label>
+        <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
+      </div>
 
+      <input type="text" name="nome" placeholder="Nome" required />
+      <input type="email" name="email" placeholder="E-mail" required />
+      <input type="password" name="senha" placeholder="Senha" required />
+      <input type="text" name="endereco" placeholder="Endereço" required />
+      <input type="tel" name="telefone" placeholder="Telefone" required />
 
-    <div id="certificado-area" style="display:none;">
-  <label>Certificado (somente para funcionários)</label>
-  <label class="custom-file-button" for="certificado">Selecionar Certificado</label>
-  <input type="file" id="certificado" name="certificado" accept="image/*" />
-</div>
+      <label class="custom-file-button" for="foto_perfil">Foto de Perfil</label>
+      <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" required />
 
+      <div id="certificado-area" style="display:none;">
+        <label>Certificado (somente para funcionários)</label>
+        <label class="custom-file-button" for="certificado">Selecionar Certificado</label>
+        <input type="file" id="certificado" name="certificado" accept="image/*" />
+      </div>
 
-    <button type="submit">Cadastrar-se</button>
-  </form>
-</div>
+      <button type="submit" class="btn-cadastrar">Cadastrar-se</button>
+    </form>
+  </div>
 
+  <!-- Formulário de Login -->
+  <div class="form-container sign-in-container">
+    <form action="../php/login.php" method="post">
+      <h1>Entrar</h1>
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="password" name="senha" placeholder="Senha" required>
 
-    <!-- Login -->
-    <div class="form-container sign-in-container">
-  <form action="../php/login.php" method="post">
-    <h1>Entrar</h1>
-    <input type="text" name="nome" placeholder="Nome" required>
-    <input type="password" name="senha" placeholder="Senha" required>
+      <div class="forgot-container">
+        <a href="#" class="link-forgot">Esqueceu sua senha?</a>
+      </div>
 
-    <button type="button" class="btn-forgot">Esqueceu sua senha?</button>
-    <button type="submit" class="btn-login">Login</button>
-  </form>
-</div>
+      <div class="login-container">
+        <button type="submit" class="log">Login</button>
+      </div>
+    </form>
+  </div>
 
-    <!-- Overlay -->
-    <div class="overlay-container">
-      <div class="overlay">
-        <div class="overlay-panel overlay-left">
-          <h1>Bem-vindo de volta!</h1>
-          <p>Para se manter conectado, entre com suas credenciais</p>
-          <button class="ghost" id="signIn">Entrar</button>
-        </div>
-        <div class="overlay-panel overlay-right">
-          <h1>Seja Bem-vindo!</h1>
-          <p>Insira seus dados e comece sua jornada conosco</p>
-          <button class="ghost" id="signUp">Cadastrar</button>
-        </div>
+  <!-- Overlay -->
+  <div class="overlay-container">
+    <div class="overlay">
+      <div class="overlay-panel overlay-left">
+        <h1>Bem-vindo de volta!</h1>
+        <p>Para se manter conectado, entre com suas credenciais</p>
+        <button class="ghost" id="signIn">Entrar</button>
+      </div>
+      <div class="overlay-panel overlay-right">
+        <h1>Seja Bem-vindo!</h1>
+        <p>Insira seus dados e comece sua jornada conosco</p>
+        <button class="ghost" id="signUp">Cadastrar</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Bootstrap -->
-  <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-    <div id="toastCadastro" class="toast align-items-center text-bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body" id="toastMsg">Cadastro realizado com sucesso!</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-      </div>
+</div>
+
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div id="toastCadastro" class="toast align-items-center text-bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg">Cadastro realizado com sucesso!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
     </div>
   </div>
+</div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS para toast -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JavaScript interno -->
-  <script>
-    const signUpButton = document.getElementById('signUp');
-    const signInButton = document.getElementById('signIn');
-    const containerEl  = document.getElementById('container');
-    const tipoSelect = document.getElementById("tipo");
-    const camposFuncionario = document.getElementById("camposFuncionario");
-    const containerSignUp = document.querySelector(".sign-up-container");
-    const certArea   = document.getElementById('certificado-area');
+<!-- Script para alternar login/cadastro -->
+<script>
+  const signUpButton = document.getElementById('signUp');
+  const signInButton = document.getElementById('signIn');
+  const containerEl = document.getElementById('container');
+  const tipoSelect = document.getElementById("tipo");
+  const camposFuncionario = document.getElementById("camposFuncionario");
+  const certArea = document.getElementById('certificado-area');
 
-    signUpButton.addEventListener('click', () => containerEl.classList.add("right-panel-active"));
-    signInButton.addEventListener('click', () => containerEl.classList.remove("right-panel-active"));
+  signUpButton.addEventListener('click', () => containerEl.classList.add("right-panel-active"));
+  signInButton.addEventListener('click', () => containerEl.classList.remove("right-panel-active"));
 
-tipoSelect.addEventListener("change", () => {
-    if(tipoSelect.value === "funcionario") {
-        camposFuncionario.style.display = "block";
-        certArea.style.display = "block"; // exibe input do certificado
-    } else {
-        camposFuncionario.style.display = "none";
-        certArea.style.display = "none";  // esconde input do certificado
-    }
-});
+  tipoSelect.addEventListener("change", () => {
+      if(tipoSelect.value === "funcionario") {
+          camposFuncionario.style.display = "block";
+          certArea.style.display = "block";
+      } else {
+          camposFuncionario.style.display = "none";
+          certArea.style.display = "none";
+      }
+  });
 
-    function mostrarCampos() {
-      const tipo = tipoSelect.value;
-      document.getElementById("camposFuncionario").style.display = (tipo === 'funcionario' ? 'block' : 'none');
-    }
+  document.getElementById('formCadastro').addEventListener('submit', function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
 
-    document.getElementById('formCadastro').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-
-      fetch('../php/cadastro.php', { method: 'POST', body: formData })
-        .then(r => r.text())
-        .then(txt => {
-          const toastEl  = document.getElementById('toastCadastro');
-          const toastMsg = document.getElementById('toastMsg');
-          if (txt.trim() === 'sucesso') {
-            toastEl.classList.remove('text-bg-danger');
-            toastEl.classList.add('text-bg-success');
-            toastMsg.textContent = '✅ Cadastro realizado com sucesso!';
-            new bootstrap.Toast(toastEl, { delay: 2000 }).show();
-            containerEl.classList.remove('right-panel-active');
-            this.reset();
-            certArea.style.display = 'none';
-            document.getElementById("camposFuncionario").style.display = 'none';
-          } else {
-            toastEl.classList.remove('text-bg-success');
-            toastEl.classList.add('text-bg-danger');
-            toastMsg.textContent = '❌ ' + txt;
-            new bootstrap.Toast(toastEl, { delay: 3500 }).show();
-          }
-        })
-        .catch(err => {
-          const toastEl  = document.getElementById('toastCadastro');
-          const toastMsg = document.getElementById('toastMsg');
+    fetch('../php/cadastro.php', { method:'POST', body: formData })
+      .then(r => r.text())
+      .then(txt => {
+        const toastEl  = document.getElementById('toastCadastro');
+        const toastMsg = document.getElementById('toastMsg');
+        if(txt.trim() === 'sucesso') {
+          toastEl.classList.remove('text-bg-danger');
+          toastEl.classList.add('text-bg-success');
+          toastMsg.textContent = '✅ Cadastro realizado com sucesso!';
+          new bootstrap.Toast(toastEl, { delay: 2000 }).show();
+          containerEl.classList.remove('right-panel-active');
+          this.reset();
+          certArea.style.display = 'none';
+          camposFuncionario.style.display = 'none';
+        } else {
           toastEl.classList.remove('text-bg-success');
           toastEl.classList.add('text-bg-danger');
-          toastMsg.textContent = '❌ Erro de conexão. Tente novamente.';
+          toastMsg.textContent = '❌ ' + txt;
           new bootstrap.Toast(toastEl, { delay: 3500 }).show();
-          console.error(err);
-        });
-    });
-  </script>
+        }
+      })
+      .catch(err => {
+        const toastEl  = document.getElementById('toastCadastro');
+        const toastMsg = document.getElementById('toastMsg');
+        toastEl.classList.remove('text-bg-success');
+        toastEl.classList.add('text-bg-danger');
+        toastMsg.textContent = '❌ Erro de conexão. Tente novamente.';
+        new bootstrap.Toast(toastEl, { delay: 3500 }).show();
+        console.error(err);
+      });
+  });
+</script>
+
 </body>
 </html>

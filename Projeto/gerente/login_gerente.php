@@ -1,45 +1,36 @@
 <?php
-session_start(); //inicia ou retorna uma sessão, que pode ser definida por um id via GET ou POST
-include("../php/conexao.php");
+session_start();
+include('../php/conexao.php');
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-$nome = $_POST['nome'];
-$senha = $_POST['senha'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
 
-//verifica se o usuario existe ou se esta banido
-$sql = "SELECT * FROM gerentes WHERE nome=? AND senha=?"; //seleciona na tabela 'gerentes' quando 'nome' e 'senha' são usados dados salvos no banco durante cadastro
-$stmt = $conn->prepare($sql); //prepare($sql) -> prepara para executar instruções SQL com marcadores de posição
-$stmt->bind_param("ss", $nome, $senha); //bind_param("ss", $nome, $senha) -> vincula as variaveis php aos marcadores de posição
-$stmt->execute(); //execute -> executa a intrução; stmt -> variavel que armazena o objeto de instrução preparada
-$result = $stmt->get_result(); //obtem os resultados
+    $sql = "SELECT * FROM gerentes WHERE email = '$email' AND senha = '$senha'";
+    $resultado = $conn->query($sql);
 
-if ($gerente && password_verify($senha, $gerente['senha'])){
-    $_SESSION['gerente_id'] = $gerente['id'];
-    $_SESSION['gerente_nome'] = $gerente['nome'];
-    header("Location: painel_gerente.php");
-} else{
-    echo "Invalido";
-}
+    if ($resultado->num_rows === 1) {
+        $gerente = $resultado->fetch_assoc();
+
+        $_SESSION['id_gerente']  = $gerente['id_gerente'];
+        $_SESSION['nome']        = $gerente['nome'];
+        $_SESSION['email']       = $gerente['email'];
+        $_SESSION['foto_perfil'] = $gerente['foto_perfil'];
+
+        header("Location: painelGerente.php");
+        exit;
+    } else {
+        echo "Email ou senha incorretos!";
+    }
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h2> Login do Gerente</h2>
-    <form method="POST">
-        <label> Nome </label>
-        <input type="text" name="nome" required><br>
+<form method="POST">
+    <label>Email:</label>
+    <input type="email" name="email" required><br>
 
-        <label> Senha </label>
-        <input type="password" name="senha" required><br>
+    <label>Senha:</label>
+    <input type="password" name="senha" required><br><br>
 
-        <input type="submit" value="Entrar">
-    </form>
-</body>
-</html>
+    <button type="submit">Entrar</button>
+</form>
