@@ -12,7 +12,29 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<style>
+  .log {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    display: inline-block;
+}
 
+.log:hover {
+    background: linear-gradient(45deg, #ff6b4b, #ff5a8c);
+    box-shadow: 0 6px 20px rgba(255, 75, 43, 0.5);
+    transform: translateY(-2px);
+}
+</style>
 <div class="login-cadastro-container" id="container">
 
   <!-- Formulário de Cadastro -->

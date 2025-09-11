@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $sql = "INSERT INTO gerentes (nome, email, senha, foto_perfil) 
             VALUES ('$nome', '$email', '$senha', '$foto')";
-
+    
     if ($conn->query($sql)) {
         echo "Gerente cadastrado com sucesso!";
         echo "<br><a href='loginGerente.php'>Logar</a>";

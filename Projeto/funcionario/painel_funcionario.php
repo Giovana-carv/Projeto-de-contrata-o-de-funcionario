@@ -1,10 +1,6 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'funcionario') {
-    header("Location: ../html/loginCadastro.html");
-    exit;
-}
 
 $conn = new mysqli("localhost", "root", "", "sistema_usuarios");
 if ($conn->connect_error) {
@@ -116,12 +112,11 @@ $resFinalizados = $stmtHist->get_result();
     <a href="../php/em_atendimento.php">Em Atendimento</a>
     <a href="../php/editar_perfil_funcionario.php">Editar Perfil</a>
     <a href="mensagens.php">Mensagens</a>
+    <a href="../php/dashboard.php">Dashboard</a>
     <a href="#">Sobre nós</a>
 
     <!-- Novo botão para Dashboard -->
-    <a href="../php/dashboard.php" style="background-color:#fff;color:#ff416c;padding:0.5rem 1rem;border-radius:10px;font-weight:bold;">
-        Central
-    </a>
+    
 
     <a class="login" href="../php/logout.php">Sair</a>
 </div>

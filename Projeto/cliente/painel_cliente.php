@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'cliente') {
-    header("Location: ../html/loginCadastro.html");
+    header("Location: ../html/loginCadastrov.html");
     exit;
 }
 
@@ -228,7 +228,7 @@ $funcionarios = $conn->query("SELECT * FROM usuarios WHERE tipo='funcionario'");
             <a href="../php/pesquisar.php">Pesquisar</a>
             <a href="notificacoes.php">Notificações</a>
             <a href="../php/dashboard.php">
-        Central
+        Dashboard
     </a>
             <a class="login" href="../php/logout.php">Sair</a>
         </div>
