@@ -227,9 +227,8 @@ $funcionarios = $conn->query("SELECT * FROM usuarios WHERE tipo='funcionario'");
             <a href="../php/editar_perfil.php">Editar Perfil</a>
             <a href="../php/pesquisar.php">Pesquisar</a>
             <a href="notificacoes.php">Notificações</a>
-            <a href="../php/dashboard.php">
-        Dashboard
-    </a>
+            
+        
             <a class="login" href="../php/logout.php">Sair</a>
         </div>
     </nav>

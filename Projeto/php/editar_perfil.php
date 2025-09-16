@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param($types, ...$params);
 
     if ($stmt->execute()) {
-        header("Location: ../funcionario/painel_funcionario.php");
+        header("Location: ../cliente/painel_cliente.php");
         exit;
     }
 }
