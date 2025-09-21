@@ -27,5 +27,5 @@ $stmt->execute();
 // atualiza status da denúncia
 $conn->query("UPDATE denuncias SET status = 'analisada' WHERE id_denuncia = $id_denuncia");
 
-header("Location: painelDenuncias.php");
+header("Location: painelDenunciasv.php");
 exit;

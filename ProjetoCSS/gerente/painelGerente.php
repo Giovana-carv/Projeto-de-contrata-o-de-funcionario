@@ -102,7 +102,7 @@ if (!isset($_SESSION['id_gerente'])) {
     </div>
 
     <div class="links">
-        <a href="painelDenuncias.php">Ver Denúcias</a>
+        <a href="painelDenunciasv.php">Ver Denúcias</a>
         <a href="../dashboard/dashboard.php">Dashboard</a>
         <a class="login" href="logoutGerente.php">Sair</a>
 </nav>

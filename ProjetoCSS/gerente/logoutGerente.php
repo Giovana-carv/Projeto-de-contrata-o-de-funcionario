@@ -1,5 +1,5 @@
 <?php
 session_start();
 session_destroy();
-header("Location: loginGerente.php");
+header("Location: loginGerentev.php");
 exit;

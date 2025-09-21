@@ -9,5 +9,5 @@ if (!isset($_SESSION['id_gerente'])) {
 $id_denuncia = intval($_POST['id_denuncia']);
 $conn->query("UPDATE denuncias SET status = 'analisada' WHERE id_denuncia = $id_denuncia");
 
-header("Location: painelDenuncias.php");
+header("Location: painelDenunciasv.php");
 exit;

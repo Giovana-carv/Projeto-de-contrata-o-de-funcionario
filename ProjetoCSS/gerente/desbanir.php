@@ -14,7 +14,7 @@ if (isset($_POST['id_banimento'])) {
     $stmt->bind_param("i", $id_banimento);
 
     if ($stmt->execute()) {
-        echo "Usuário desbanido com sucesso! <a href='painelDenuncias.php'>Voltar</a>";
+        echo "Usuário desbanido com sucesso! <a href='painelDenunciasv.php'>Voltar</a>";
     } else {
         echo "Erro ao desbanir.";
     }

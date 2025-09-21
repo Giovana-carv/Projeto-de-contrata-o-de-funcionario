@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Upload da foto (se enviada)
     if (!empty($_FILES['foto']['name'])) {
-        $destino = "uploads/" . basename($_FILES['foto']['name']);
+        $destino = "    uploads/" . basename($_FILES['foto']['name']);
         move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
     } else {
         $foto = "default.png";
