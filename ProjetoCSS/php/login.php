@@ -47,7 +47,7 @@ if ($result->num_rows === 1) {
         echo "<p><strong>Este banimento é permanente.</strong></p>";
     }
 
-    echo "<a class='btn-voltar' href='../html/loginCadastro.html'>Voltar</a>
+    echo "<a class='btn-voltar' href='../html/loginCadastrov.html'>Voltar</a>
     </div>";
 
     exit;
@@ -68,7 +68,7 @@ if ($result->num_rows === 1) {
 
 } else {
     echo "Nome ou senha inválidos.";
-    echo "<a href = '../html/loginCadastro.html'> Voltar </a>";
+    echo "<a href = '../html/loginCadastrov.html'> Voltar </a>";
 }
 ?>
 
@@ -121,7 +121,7 @@ if ($result->num_rows === 1) {
             <?php } else { ?>
             <p><strong>Este banimento é permanente.</strong></p>
             <?php } ?>
-        <a class="btn-voltar" href="../html/loginCadastro.html">Voltar</a>
+        <a class="btn-voltar" href="../html/loginCadastrov.html">Voltar</a>
     </div>
 </body>
 </html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login e Cadastro</title>
+  <link rel="stylesheet" href="../css/loginCadastrov.css" />
+</head>
+<body>
+<div class="login-cadastro-container" id="container">
+
+  <!-- Formulário de Cadastro -->
+  <div class="form-container sign-up-container">
+    <form id="formCadastro" enctype="multipart/form-data">
+      <h2>Crie uma Conta</h2>
+
+      <span>Tipo de usuário</span>
+      <select name="tipo" id="tipo" required>
+        <option value="cliente">Cliente</option>
+        <option value="funcionario">Funcionário</option>
+      </select>
+
+      <div id="camposFuncionario" style="display:none;">
+        <input type="text" name="ocupacao" placeholder="Ocupação"><br>
+        <label for="comentario">Deixe um comentário:</label>
+        <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea><br>
+
+        <!-- Upload de certificado (apenas funcionários) -->
+        <div id="certificado-area">
+          <label class="file-upload-custom" for="certificado">Selecionar Certificado</label>
+          <input type="file" id="certificado" name="certificado" accept="image/*" />
+          <span id="certificado_nome" class="file-name">Nenhum arquivo selecionado</span>
+        </div>
+      </div>
+
+      <input type="text" name="nome" placeholder="Nome" required />
+      <input type="email" name="email" placeholder="E-mail" required />
+      <input type="password" name="senha" placeholder="Senha" required />
+      <input type="text" name="endereco" placeholder="Endereço" required />
+      <input type="tel" name="telefone" placeholder="Telefone" required />
+
+      <!-- Upload de foto -->
+      <label class="file-upload-custom" for="foto_perfil">Foto de Perfil</label>
+      <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" required />
+      <span id="foto_perfil_nome" class="file-name">Nenhum arquivo selecionado</span>
+
+      <!-- Mensagem de feedback -->
+      <div id="mensagem" style="margin-top:10px; color:green;"></div>
+
+      <button type="submit" class="btn-cadastrar">Cadastrar-se</button>
+    </form>
+  </div>
+
+  <!-- Formulário de Login -->
+  <div class="form-container sign-in-container">
+    <form action="../php/login.php" method="post">
+      <h1>Entrar</h1>
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="password" name="senha" placeholder="Senha" required>
+
+      <div class="forgot-container">
+        <a href="#" class="link-forgot">Esqueceu sua senha?</a>
+      </div>
+
+      <div class="login-container">
+        <button type="submit" class="btn-login-custom">Login</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay-container">
+    <div class="overlay">
+      <div class="overlay-panel overlay-left">
+        <h1>Bem-vindo de volta!</h1>
+        <p>Para se manter conectado, entre com suas credenciais</p>
+        <button class="ghost" id="signIn">Entrar</button>
+      </div>
+      <div class="overlay-panel overlay-right">
+        <h1>Seja Bem-vindo!</h1>
+        <p>Insira seus dados e comece sua jornada conosco</p>
+        <button class="ghost" id="signUp">Cadastrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const signUpButton = document.getElementById('signUp');
+const signInButton = document.getElementById('signIn');
+const containerEl = document.getElementById('container');
+const tipoSelect = document.getElementById("tipo");
+const camposFuncionario = document.getElementById("camposFuncionario");
+const certArea = document.getElementById('certificado-area');
+const formCadastro = document.getElementById('formCadastro');
+const mensagemDiv = document.getElementById('mensagem');
+
+mensagemDiv.textContent = "";
+
+// Alternar painéis
+signUpButton.addEventListener('click', () => containerEl.classList.add("right-panel-active"));
+signInButton.addEventListener('click', () => containerEl.classList.remove("right-panel-active"));
+
+// Mostrar campos extras se for funcionário
+tipoSelect.addEventListener("change", () => {
+    if(tipoSelect.value === "funcionario") {
+        camposFuncionario.style.display = "block";
+        certArea.style.display = "block";
+    } else {
+        camposFuncionario.style.display = "none";
+        certArea.style.display = "none";
+    }
+});
+
+// Mostrar nome do arquivo selecionado
+function mostrarNomeArquivo(inputId, spanId) {
+    const input = document.getElementById(inputId);
+    const span = document.getElementById(spanId);
+    input.addEventListener('change', () => {
+        span.textContent = input.files.length > 0 ? input.files[0].name : "Nenhum arquivo selecionado";
+    });
+}
+mostrarNomeArquivo('foto_perfil', 'foto_perfil_nome');
+mostrarNomeArquivo('certificado', 'certificado_nome');
+
+// Enviar formulário de cadastro via fetch
+formCadastro.addEventListener('submit', function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('../php/cadastro.php', { method:'POST', body: formData })
+    .then(r => r.text())
+    .then(txt => {
+        if(txt.trim() === 'sucesso') {
+            // Mensagem de sucesso no HTML
+            mensagemDiv.style.color = 'green';
+            mensagemDiv.textContent = "✅ Cadastro realizado com sucesso!";
+            containerEl.classList.remove('right-panel-active');
+            this.reset();
+            certArea.style.display = 'none';
+            camposFuncionario.style.display = 'none';
+            document.getElementById('foto_perfil_nome').textContent = "Nenhum arquivo selecionado";
+            document.getElementById('certificado_nome').textContent = "Nenhum arquivo selecionado";
+        } else {
+            // Mensagem de erro no HTML
+            mensagemDiv.style.color = 'red';
+            mensagemDiv.textContent = "❌ " + txt;
+        }
+    })
+    .catch(err => {
+        mensagemDiv.style.color = 'red';
+        mensagemDiv.textContent = '❌ Erro de conexão. Tente novamente.';
+        console.error(err);
+    });
+});
+</script>
+</body>
+</html>

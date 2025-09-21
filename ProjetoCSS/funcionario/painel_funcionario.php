@@ -204,7 +204,7 @@ $resFinalizados = $stmtHist->get_result();
             <a href="galeria.php">Galeria</a>
             <a href="../php/solicitacoes.php">Solicitações de Contratação</a>
             <a href="../php/em_atendimento.php">Em Atendimento</a>
-            <a href="../php/editar_perfil.php">Editar Perfil</a>
+            <a href="../php/editar_perfil_funcionario.php">Editar Perfil</a>
             <a href="mensagens.php">Mensagens</a>
             <a href="#">Sobre nós</a>
             <a class="login" href="../php/logout.php">Sair</a>

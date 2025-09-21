@@ -1,6 +1,6 @@
 <?php
 session_start();
 session_destroy();
-header("Location: ../html/loginCadastro.html");
+header("Location: ../html/loginCadastrov.html");
 exit;
 ?>
