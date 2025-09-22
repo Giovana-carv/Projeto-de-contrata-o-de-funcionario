@@ -2,125 +2,320 @@
 include('conexao.php');
 session_start();
 
+if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'cliente') {
+    header("Location: ../html/loginCadastro.html");
+    exit;
+}
+
 // Consulta para os 10 funcionários mais bem avaliados
-$sql = "SELECT u.id, u.nome, u.ocupacao, u.foto_perfil,/*Seleciona os dados básicos dos funcionários: ID, nome, ocupação (ex: encanador, pintor), e a foto de perfil.*/
-    AVG(a.estrelas) as media/*Calcula a média das estrelas recebidas por cada funcionário, a partir da tabela de avaliações.*/
-    FROM usuarios u /*Os dados dos funcionários estão na tabela usuarios, que foi apelidada como u.*/
-    JOIN avaliacoes a ON u.id = a.id_funcionario /*Faz uma junção interna (INNER JOIN) entre a tabela usuarios e avaliacoes, ligando o id do usuário com o campo id_funcionario nas avaliações.Ou seja, pega as avaliações feitas para os usuários do tipo funcionário*/
-    WHERE u.tipo = 'funcionario' /*Filtra apenas os usuários que são do tipo funcionario, excluindo clientes, gerentes, etc.*/
-    GROUP BY u.id, u.nome, u.ocupacao, u.foto_perfil /*Agrupa os resultados por funcionário, já que estamos usando AVG() (uma função agregada).
-Isso garante que cada linha do resultado seja referente a um único funcionário, com sua média de avaliações.*/
-    ORDER BY media DESC /*Ordena os funcionários da maior para a menor média de estrelas.*/
-    LIMIT 10"; //limite de 10
+$sql = "SELECT u.id, u.nome, u.ocupacao, u.foto_perfil,
+        AVG(a.estrelas) as media
+        FROM usuarios u
+        JOIN avaliacoes a ON u.id = a.id_funcionario
+        WHERE u.tipo = 'funcionario'
+        GROUP BY u.id, u.nome, u.ocupacao, u.foto_perfil
+        ORDER BY media DESC
+        LIMIT 10";
 
-$result = $conn->query($sql);//Usa o objeto $conn para executar a consulta SQL.
+$result = $conn->query($sql);
+
+// Foto do cliente
+$stmtFoto = $conn->prepare("SELECT foto_perfil FROM usuarios WHERE id = ?");
+$stmtFoto->bind_param("i", $_SESSION['id']);
+$stmtFoto->execute();
+$resFoto = $stmtFoto->get_result();
+$foto = $resFoto->fetch_assoc();
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Top 10 Funcionários</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .funcionario {
-            border: 1px solid #ccc;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background-color: #f9f9f9;
-            box-shadow: 0 4px 12px #ff416c;
-        }
-        .funcionario img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #aaa;
-        }
-        .info {
-            flex: 1;
-        }
-        .btn-perfil {
-            padding: 5px 10px;
-            background-color: rgb(185, 40, 74);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .btn-perfil:hover {
-            background-color: rgb(170, 36, 67);
-        }
-    .theme-toggle {
-      background:rgba(255,255,255,0.2);
-      border-radius:50%;
-      width:40px;
-      height:40px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top 10 Funcionários</title>
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafc;
+    color: #333;
+    transition: background 0.4s, color 0.4s;
+}
+
+header {
+    background: linear-gradient(135deg, #ff416c, rgb(187, 7, 49));
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    position: relative;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+nav .logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: bold;
+    color: white;
+}
+
+nav .logo img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+nav ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    align-items: center;
+}
+
+nav li a,
+nav li button {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 18px;
+    border-radius: 25px;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+nav li a:hover,
+nav li a.active {
+    background: #fff;
+    color: #ff416c;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+}
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 25px;
+    z-index: 1000;
+}
+
+.menu-toggle span {
+    height: 3px;
+    width: 25px;
+    background: #fff;
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: 0.4s;
+}
+
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+h2 {
+    text-align: center;
+    margin: 20px 0;
+    color: #ff416c;
+}
+
+/* === Cards de Funcionários === */
+.funcionario {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #fff;
+    padding: 15px;
+    margin: 20px auto;
+    max-width: 900px;
+
+    border-radius: 15px;
+    border: 1px solid #eee;
+
+    /* brilho rosa */
+    box-shadow: 0 0 10px rgba(255, 0, 102, 0.3);
+}
+
+.funcionario img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.info {
+    flex: 1;
+}
+
+.info strong {
+    font-size: 1.1rem;
+    color: #222;
+}
+
+.btn-perfil {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 18px;
+    background-color: #b9284a;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-perfil:hover {
+    background-color: #a02443;
+}
+
+/* === Tema escuro === */
+body.dark {
+    background: #1e1e1e;
+    color: #ddd;
+}
+
+body.dark h2 {
+    color: white;
+}
+
+body.dark .funcionario {
+    background: #2a2a2a;
+    color: #ddd;
+}
+
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #ff416c;
+        width: 220px;
+        display: none;
+        padding: 15px;
+        border-bottom-left-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     }
-    .theme-toggle:hover {
-      background:rgba(255,255,255,0.35);
-      cursor: pointer;
+
+    nav ul.show {
+        display: flex;
     }
-    body.dark {
-      background:#1e1e1e;
-      color: black;
+
+    .menu-toggle {
+        display: flex;
     }
-    body h2{
-        color: black;
-        text-align: center;
-    }
-    body.dark h2{
-        color: white;
-        text-align: center;
-    }
-    body.dark .card {
-      background:#2a2a2a;
-      color:#ddd;
-    }
-    </style>
+}
+
+</style>
 </head>
 <body>
-    <button class="theme-toggle" id="theme-toggle">🌙</button>
+<header>
+<nav>
+    <div class="logo">
+        <?php if(!empty($foto['foto_perfil'])): ?>
+            <img src="../uploads/<?php echo htmlspecialchars($foto['foto_perfil']); ?>" alt="Foto do Cliente">
+        <?php endif; ?>
+        <h1>Bem-vindo, <?php echo htmlspecialchars($_SESSION['nome']); ?>!</h1>
+    </div>
+    <div class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></div>
+    <ul id="menu">
+        <li><a href="../cliente/painel_cliente.php">Início</a></li>
+        <li><a href="../php/top10.php" class="active">Top 10 Funcionários</a></li>
+        <li><a href="../php/editar_perfil_cliente.php">Editar Perfil</a></li>
+        <li><a href="../php/pesquisar.php">Pesquisar</a></li>
+        <li><a href="notificacoes.php">Notificações</a></li>
+        <li><a href="../php/logout.php">Sair</a></li>
+        <li><button class="theme-toggle" id="theme-toggle">🌙</button></li>
+    </ul>
+</nav>
+</header>
 
-    <h2>Top 10 Funcionários Mais Bem Avaliados</h2>
+<h2>Top 10 Funcionários Mais Bem Avaliados</h2>
 
- <form action='../cliente/painel_cliente.php' method='get'>
-        <button type='submit' class="btn-perfil">Voltar</button>
-      </form>
-      <?php 
-    if ($result && $result->num_rows > 0): ?>
-        <?php while ($row = $result->fetch_assoc()): ?>
-            <div class="funcionario">
-                <img src="../uploads/<?php echo $row['foto_perfil']; ?>" alt="Foto do Funcionário">
-                <div class="info">
-                    <strong><?php echo htmlspecialchars($row['nome']); ?></strong><br>
-                    Ocupação: <?php echo htmlspecialchars($row['ocupacao']); ?><br>
-                    Média: 
-                    <?php
-                        $media = round($row['media'], 1);
-                        for ($i = 1; $i <= 5; $i++) {
-                            echo $i <= $media ? '★' : '☆';
-                        }
-                        echo " ($media)";
-                    ?><br><br>
-                    <a class="btn-perfil" href="perfil_funcionario.php?id=<?php echo $row['id']; ?>">Ver Perfil</a>
-                </div>
+<?php if ($result && $result->num_rows > 0): ?>
+    <?php while($row = $result->fetch_assoc()): ?>
+        <div class="funcionario">
+            <img src="../uploads/<?php echo $row['foto_perfil']; ?>" alt="Foto do Funcionário">
+            <div class="info">
+                <strong><?php echo htmlspecialchars($row['nome']); ?></strong><br>
+                Ocupação: <?php echo htmlspecialchars($row['ocupacao']); ?><br>
+                Média: 
+                <?php
+                    $media = round($row['media'],1);
+                    for($i=1;$i<=5;$i++){
+                        echo $i <= $media ? '★' : '☆';
+                    }
+                    echo " ($media)";
+                ?>
+                <br><br>
+                <a class="btn-perfil" href="perfil_funcionario.php?id=<?php echo $row['id']; ?>">Ver Perfil</a>
             </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <p>Nenhum funcionário avaliado ainda.</p>
-    <?php endif;  ?>
+        </div>
+    <?php endwhile; ?>
+<?php else: ?>
+    <p style="text-align:center;">Nenhum funcionário avaliado ainda.</p>
+<?php endif; ?>
 
-    <script src="../js/tema.js"></script>
+<script>
+// Menu hambúrguer
+const toggle = document.getElementById("menu-toggle");
+const menu = document.getElementById("menu");
+toggle.addEventListener("click",()=>{menu.classList.toggle("show"); toggle.classList.toggle("active");});
+
+// Tema claro/escuro
+const themeToggle = document.getElementById("theme-toggle");
+const body = document.body;
+if(localStorage.getItem("theme")==="dark"){body.classList.add("dark"); themeToggle.textContent="☀️";}
+themeToggle.addEventListener("click",()=>{
+    body.classList.toggle("dark");
+    if(body.classList.contains("dark")){themeToggle.textContent="☀️"; localStorage.setItem("theme","dark");}
+    else{themeToggle.textContent="🌙"; localStorage.setItem("theme","light");}
+});
+</script>
 </body>
 </html>

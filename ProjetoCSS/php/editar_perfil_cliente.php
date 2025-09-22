@@ -222,10 +222,11 @@ body.dark .container {background:#2a2a2a;color:#ddd;}
         </div>
         <div class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></div>
         <ul id="menu">
+            <li><a href="../cliente/painel_cliente.php">Início</a></li>
             <li><a href="../php/top10.php">Top 10 Funcionários</a></li>
             <li><a href="../php/editar_perfil_cliente.php" class="active">Editar Perfil</a></li>
             <li><a href="../php/pesquisar.php">Pesquisar</a></li>
-            <li><a href="notificacoes.php">Notificações</a></li>
+            <li><a href="../cliente/notificacoes.php">Notificações</a></li>
             <li><a href="../php/logout.php">Sair</a></li>
             <li><button class="theme-toggle" id="theme-toggle">🌙</button></li>
         </ul>

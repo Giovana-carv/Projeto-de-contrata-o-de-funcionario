@@ -170,10 +170,10 @@ $result = $conn->query($sql);
                     </form>
 
                     <!-- Desbanir -->
-                    <form action="desbanir.php" method="POST">
-                        <input type="hidden" name="id_denunciado" value="<?= $row['id_denunciado'] ?>">
-                        <button type="submit">Desbanir</button>
-                    </form>
+                    <form action='desbanir.php' method='POST'>
+                <input type='hidden' name='id_banimento' value='" . $row['id_banimento'] . "'>
+                <button type='submit'>Desbanir</button>
+            </form>
                 </td>
             </tr>
             <?php endwhile; ?>

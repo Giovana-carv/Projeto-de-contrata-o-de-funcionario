@@ -217,6 +217,7 @@ body.dark .container {
         <h1>Bem-vindo, <?php echo htmlspecialchars($nomeFuncionario); ?>!</h1>
     </div>
     <div class="links">
+       <a href="../funcionario/painel_funcionario.php">Início</a>
         <a href="../funcionario/galeria.php">Galeria</a>
         <a href="../php/solicitacoes.php">Solicitações de Contratação</a>
         <a href="../php/em_atendimento.php">Em Atendimento</a>
