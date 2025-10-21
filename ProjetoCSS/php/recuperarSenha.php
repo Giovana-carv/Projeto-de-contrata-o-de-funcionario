@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if($result->num_rows > 0){
             $row = $result->fetch_assoc();
-            echo "<script>alert('Sua senha é: " . $row['senha'] . "'); window.location.href = '../html/loginCadastro.html';</script>";
+            echo "<script>alert('Sua senha é: " . $row['senha'] . "'); window.location.href = '../html/loginCadastrov.html';</script>";
         } else {
             echo "<script>alert('Nome ou email incorretos. Tente novamente.');</script>";
         }
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="nome" placeholder="Digite seu nome de usuário" required>
             <input type="email" name="email" placeholder="Digite seu email" required>
             <button type="submit"> Recuperar Senha </button>
-            <a href="../html/loginCadastro.html">Cancelar</a>
+            <a href="../html/loginCadastrov.html">Cancelar</a>
         </form>
     </div>
 </body>

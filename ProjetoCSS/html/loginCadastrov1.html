@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login e Cadastro</title>
+  <style>
+    /* Reset simples */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f0f0; }
+
+    .login-cadastro-container {
+      width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 { text-align: center; margin-bottom: 20px; }
+
+    form { display: flex; flex-direction: column; gap: 10px; }
+
+    input, select, textarea, button {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      transition: background 0.3s;
+    }
+
+    button:hover { background: #0056b3; }
+
+    .file-name { font-size: 12px; color: #555; }
+
+    #camposFuncionario { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="login-cadastro-container" id="container">
+
+  <!-- Formulário de Cadastro -->
+  <div class="form-container sign-up-container">
+    <form id="formCadastro" enctype="multipart/form-data">
+      <h2>Crie uma Conta</h2>
+
+      <span>Tipo de usuário</span>
+      <select name="tipo" id="tipo" required>
+        <option value="cliente">Cliente</option>
+        <option value="funcionario">Funcionário</option>
+      </select>
+
+      <div id="camposFuncionario">
+        <input type="text" name="ocupacao" placeholder="Ocupação">
+        <label for="comentario">Deixe um comentário:</label>
+        <textarea name="comentario" maxlength="300" placeholder="(máx. 300 caracteres)"></textarea>
+
+        <div id="certificado-area">
+          <label class="file-upload-custom" for="certificado">Selecionar Certificado</label>
+          <input type="file" id="certificado" name="certificado" accept="image/*" />
+          <span id="certificado_nome" class="file-name">Nenhum arquivo selecionado</span>
+        </div>
+      </div>
+
+      <input type="text" name="nome" placeholder="Nome" required />
+      <input type="email" name="email" placeholder="E-mail" required />
+      <input type="password" name="senha" placeholder="Senha" required />
+      <input type="text" name="endereco" placeholder="Endereço" required />
+      <input type="tel" name="telefone" placeholder="Telefone" required />
+
+      <label class="file-upload-custom" for="foto_perfil">Foto de Perfil</label>
+      <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" required />
+      <span id="foto_perfil_nome" class="file-name">Nenhum arquivo selecionado</span>
+
+      <button type="submit">Cadastrar-se</button>
+    </form>
+  </div>
+
+  <!-- Formulário de Login -->
+  <div class="form-container sign-in-container" style="margin-top:30px;">
+    <form action="../php/login.php" method="post">
+      <h2>Entrar</h2>
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="password" name="senha" placeholder="Senha" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+const tipoSelect = document.getElementById("tipo");
+const camposFuncionario = document.getElementById("camposFuncionario");
+const certArea = document.getElementById('certificado-area');
+const formCadastro = document.getElementById('formCadastro');
+
+// Mostrar campos extras se for funcionário
+tipoSelect.addEventListener("change", () => {
+    if(tipoSelect.value === "funcionario") {
+        camposFuncionario.style.display = "block";
+    } else {
+        camposFuncionario.style.display = "none";
+    }
+});
+
+// Mostrar nome do arquivo selecionado
+function mostrarNomeArquivo(inputId, spanId) {
+    const input = document.getElementById(inputId);
+    const span = document.getElementById(spanId);
+    input.addEventListener('change', () => {
+        span.textContent = input.files.length > 0 ? input.files[0].name : "Nenhum arquivo selecionado";
+    });
+}
+mostrarNomeArquivo('foto_perfil', 'foto_perfil_nome');
+mostrarNomeArquivo('certificado', 'certificado_nome');
+
+// Enviar formulário de cadastro via fetch com alert (opcional)
+formCadastro.addEventListener('submit', function(e){
+    e.preventDefault();
+    alert('Formulário de cadastro enviado!');
+    this.reset();
+    camposFuncionario.style.display = 'none';
+    document.getElementById('foto_perfil_nome').textContent = "Nenhum arquivo selecionado";
+    document.getElementById('certificado_nome').textContent = "Nenhum arquivo selecionado";
+});
+</script>
+
+</body>
+</html>
