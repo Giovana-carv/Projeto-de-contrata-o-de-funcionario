@@ -39,25 +39,3 @@ if ($stmt->execute()) {
 $stmt->close();
 $conn->close();
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <style>
-    *{
-        padding: 4;
-        margin: 3;
-        box-sizing: border-box solid black;
-        font-family: 'Inter', sans-serif;
-        text-align: center;
-    }
-    </style>
-</head>
-<body>
-    <form>
-        <button><a href="../html/loginCadastro.html">Voltar</a></button>
-    </form>
-</body>
-</html>

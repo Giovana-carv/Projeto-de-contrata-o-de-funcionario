@@ -192,7 +192,7 @@ $funcionarios = $conn->query("SELECT * FROM usuarios WHERE tipo='funcionario'");
 
       <ul id="menu">
         <li><a href="../php/top10.php">Top 10 Funcionários</a></li>
-        <li><a href="../php/editar_perfil.php">Editar Perfil</a></li>
+        <li><a href="../php/editar_perfil_cliente.php">Editar Perfil</a></li>
         <li><a href="../php/pesquisar.php">Pesquisar</a></li>
         <li><a href="notificacoes.php">Notificações</a></li>
         <li><a href="../php/logout.php">Sair</a></li>

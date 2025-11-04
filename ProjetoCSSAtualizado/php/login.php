@@ -115,7 +115,7 @@ if ($result->num_rows === 1) {
         <p>Verifique seus dados e tente novamente.</p>
     <?php } ?>
 
-    <a class="btn-voltar" href="../html/loginCadastro.html">Voltar</a>
+    <a class="btn-voltar" href="../html/loginCadastrov.html">Voltar</a>
 </div>
 
 </body>
