@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="nome" placeholder="Digite seu nome de usuário" required>
             <input type="email" name="email" placeholder="Digite seu email" required>
             <button type="submit"> Recuperar Senha </button>
-            <a href="../html/loginCadastro.html">Cancelar</a>
+            <a href="../html/loginCadastrov.html">Cancelar</a>
         </form>
     </div>
 </body>
